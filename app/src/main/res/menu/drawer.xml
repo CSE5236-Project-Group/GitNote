@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/drawer_item_all_notes"
+            android:checked="true"
+            android:title="@string/title_all_notes" />
+        <item
+            android:id="@+id/drawer_item_Note_Repo"
+            android:title="@string/title_notes_repo"/>
+        <item
+            android:id="@+id/drawer_item_gists"
+            android:title="@string/title_gists"/>
+        <item
+            android:id="@+id/drawer_item_notification"
+            android:title="@string/title_notification"/>
+    </group>
+</menu>

@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,20 +28,33 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer) NavigationView navigationView;
+    @BindView(R.id.text) TextView textView;
 
     private ActionBarDrawerToggle drawerToggle; // tie drawer_layout with ActionBar
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("cycle", "onCreate called");
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
         setUpDrawer();
     }
+
+    private void changeText(TextView textView) {
+        textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        textView.setText("after");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i("cycle", "onStart called");
+    }
+
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -53,6 +67,24 @@ public class MainActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.syncState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("cycle", "onResume called");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i("cycle", "onStop called");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i("cycle", "onDestory called");
     }
 
     /* This hook is called whenever an item in your options menu is selected.*/
@@ -71,8 +103,11 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(drawerToggle);
 
         View headerView = navigationView.inflateHeaderView(R.layout.drawer_header);
+
         ((TextView) headerView.findViewById(R.id.nav_header_user_name)).setText("Zhenyu Liu");
-        ((ImageView) headerView.findViewById(R.id.nav_header_user_picture)).setImageResource(R.drawable.user_picture_placeholder);
+        ((ImageView) headerView.findViewById(R.id.nav_header_user_picture))
+                .setImageResource(R.drawable.user_picture_placeholder);
+
         // set user name and pic
 
         // Logout button
@@ -87,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 if (item.isChecked()) {
-                    Toast.makeText(MainActivity.this, "test", Toast.LENGTH_LONG).show();
                     drawerLayout.closeDrawers();
                     return true;
                 }

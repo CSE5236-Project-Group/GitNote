@@ -2,6 +2,7 @@ package com.project.cse5326.gitnote;
 
 import android.app.Fragment;
 import android.content.res.Configuration;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -44,11 +45,6 @@ public class MainActivity extends AppCompatActivity {
         setUpDrawer();
     }
 
-    private void changeText(TextView textView) {
-        textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-        textView.setText("after");
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -72,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Toast t = Toast.makeText(this, "Test test", Toast.LENGTH_LONG);
         Log.i("cycle", "onResume called");
     }
+
 
     @Override
     protected void onStop() {

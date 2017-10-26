@@ -8,6 +8,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:background="@color/colorPrimary"
+    android:id="@+id/login_back"
     tools:context="com.project.cse5326.gitnote.LoginActivity">
 
     <ImageView

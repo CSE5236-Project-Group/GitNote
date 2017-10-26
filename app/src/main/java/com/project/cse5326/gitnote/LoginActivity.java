@@ -57,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == Auth.REQ_CODE && resultCode == RESULT_OK) {
             final String authCode = data.getStringExtra(AuthActivity.KEY_CODE);
 
+            Log.i("CODE2", authCode);
             new Thread(new Runnable() {
                 @Override
                 public void run() {

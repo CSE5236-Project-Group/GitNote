@@ -3,30 +3,77 @@ package com.project.cse5326.gitnote;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.project.cse5326.gitnote.Github.Auth.Auth;
+import com.project.cse5326.gitnote.Github.Auth.AuthActivity;
+import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Github.GithubException;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LoginActivity extends AppCompatActivity {
 
-   @BindView(R.id.activity_login_btn) TextView loginBtn;
+    @BindView(R.id.activity_login_btn)
+    TextView loginBtn;
+    @BindView(R.id.login_back)
+    LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        Github.init(this);
 
-        // Log in btn
-        loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        if (!Github.isLogin()) {
+            // Log in btn
+            loginBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.i("Click", "click");
+                    Auth.openAuthActivity(LoginActivity.this);
+                }
+            });
+        } else {
+            Log.i("MAIN", "MAIN");
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == Auth.REQ_CODE && resultCode == RESULT_OK) {
+            final String authCode = data.getStringExtra(AuthActivity.KEY_CODE);
+
+            Log.i("CODE2", authCode);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String token = Auth.fetchAccessToken(authCode);
+                        Log.i("TOKEN", token);
+                        Github.login(LoginActivity.this, token);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } catch (InterruptedException | ExecutionException | GithubException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
     }
 }

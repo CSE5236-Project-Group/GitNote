@@ -2,6 +2,7 @@ package com.project.cse5326.gitnote;
 
 import android.app.Fragment;
 import android.content.res.Configuration;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -18,6 +19,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Utils.ImageUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,11 +48,6 @@ public class MainActivity extends AppCompatActivity {
         setUpDrawer();
     }
 
-    private void changeText(TextView textView) {
-        textView.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-        textView.setText("after");
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -72,8 +71,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Toast t = Toast.makeText(this, "Test test", Toast.LENGTH_LONG);
         Log.i("cycle", "onResume called");
     }
+
 
     @Override
     protected void onStop() {
@@ -104,11 +105,12 @@ public class MainActivity extends AppCompatActivity {
 
         View headerView = navigationView.inflateHeaderView(R.layout.drawer_header);
 
-        ((TextView) headerView.findViewById(R.id.nav_header_user_name)).setText("Zhenyu Liu");
-        ((ImageView) headerView.findViewById(R.id.nav_header_user_picture))
-                .setImageResource(R.drawable.user_picture_placeholder);
+        // User name & avatar
+        ((TextView) headerView.findViewById(R.id.nav_header_user_name))
+                .setText(Github.getCurrentUser().name);
+        ImageView userPicture = headerView.findViewById(R.id.nav_header_user_picture);
+        ImageUtils.loadUserPicture(this, userPicture, Github.getCurrentUser().avatar_url);
 
-        // set user name and pic
 
         // Logout button
         headerView.findViewById(R.id.nav_header_logout).setOnClickListener(new View.OnClickListener() {

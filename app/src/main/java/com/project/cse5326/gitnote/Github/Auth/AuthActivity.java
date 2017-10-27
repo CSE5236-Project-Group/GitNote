@@ -48,8 +48,9 @@ public class AuthActivity extends AppCompatActivity{
         progressBar.setMax(100);
 
         // Start Webview
-        CookieManager.getInstance().setAcceptCookie(true);
+
         webView.getSettings().setJavaScriptEnabled(true);
+//        CookieManager.getInstance().setAcceptCookie(true);
         webView.setWebViewClient(new WebViewClient(){
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {

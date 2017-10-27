@@ -52,7 +52,7 @@ public class Github {
     private static Request.Builder authRequestBuilder(String url) {
         return new Request
                 .Builder()
-                .addHeader("Authorization", "Bearer" + accessToken)
+                .addHeader("Authorization", "Bearer " + accessToken)
                 .url(url);
     }
 
@@ -68,8 +68,9 @@ public class Github {
 
     // HTTP GET
     private static Response makeGetRequest(@NonNull String url) throws GithubException {
-        Log.i("url", url);
         Request request = authRequestBuilder(url).build();
+
+        Log.i("url", request.toString());
         return makeRequest(request);
     }
 

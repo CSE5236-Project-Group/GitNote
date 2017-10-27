@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,7 @@ import okhttp3.RequestBody;
 
 /*--------------------------------------------------------------------------------------------------
  * Build Method for Github API
+ * https://developer.github.com/apps/building-integrations/setting-up-and-registering-github-apps/identifying-users-for-github-apps/
 --------------------------------------------------------------------------------------------------*/
 
 public class Auth {
@@ -41,7 +43,7 @@ public class Auth {
 
     // url
     private static final String URI_AUTHORIZE = "https://github.com/login/oauth/authorize"; //GET
-    private static final String URI_TOKEN = "https://github.com/login/oauth/token"; // post
+    private static final String URI_TOKEN = "https://github.com/login/oauth/access_token"; // post
 
     // redirect url
     public static final String REDIRECT_URI = "https://www.google.com/";
@@ -90,14 +92,10 @@ public class Auth {
                 e.printStackTrace();
             }
 
-            // handle returned json
-            try {
-                JSONObject obj = new JSONObject(respond);
-                return obj.getString(KEY_ACCESS_TOKEN);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return "";
-            }
+            Log.i("RESPOND", respond);
+            Log.i("ACC", respond.substring(13, 53));
+            // return Access token
+            return respond.substring(13, 53);
         }
     }
 

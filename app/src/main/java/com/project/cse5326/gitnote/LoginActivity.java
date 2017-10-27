@@ -32,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        Github.init(this);
 
         if (!Github.isLogin()) {
             // Log in btn
@@ -43,11 +44,11 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         } else {
+            Log.i("MAIN", "MAIN");
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-
     }
 
     @Override
@@ -61,9 +62,9 @@ public class LoginActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    String token;
                     try {
-                        token = Auth.fetchAccessToken(authCode);
+                        String token = Auth.fetchAccessToken(authCode);
+                        Log.i("TOKEN", token);
                         Github.login(LoginActivity.this, token);
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);

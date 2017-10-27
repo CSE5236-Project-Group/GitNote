@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.text.BoringLayout;
+import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.User;
@@ -22,7 +23,7 @@ public class Github {
 
     // Request url
     private static final String API_URL = "https://api.github.com";
-    private static final String USER_ENDPOINT = API_URL + "user";
+    private static final String USER_ENDPOINT = API_URL + "/user";
     private static final String USERS_ENDPOINT = API_URL + "users";
     // TODO more endpoint
 
@@ -58,6 +59,7 @@ public class Github {
     private static Response makeRequest(Request request) throws GithubException {
         try {
             Response response = client.newCall(request).execute();
+            Log.i("respon", response.toString());
             return response;
         } catch (IOException e) {
             throw new GithubException(e.getMessage());
@@ -66,6 +68,7 @@ public class Github {
 
     // HTTP GET
     private static Response makeGetRequest(@NonNull String url) throws GithubException {
+        Log.i("url", url);
         Request request = authRequestBuilder(url).build();
         return makeRequest(request);
     }
@@ -104,10 +107,6 @@ public class Github {
         return accessToken != null;
     }
 
-    private static User loadUser(Context context) {
-        return ModelUtils.read(context, KEY_USER, USER_TYPE_TOKEN);
-    }
-
     private static String loadAccessToken(Context context) {
         SharedPreferences sp = context.getApplicationContext()
                 .getSharedPreferences(SP_AUTH, Context.MODE_PRIVATE);
@@ -121,6 +120,7 @@ public class Github {
         storeAccessToken(context, accessToken);
         Github.user = fetchUserInfo();
         storeUser(context, user);
+        Log.i("User", user.name);
     }
 
     private static void storeAccessToken(Context context, String accessToken) {
@@ -129,6 +129,7 @@ public class Github {
         sp.edit().putString(KEY_ACCESS_TOKEN, accessToken).apply();
     }
 
+    // User Info
     private static User fetchUserInfo() throws GithubException {
         return parseResponse(makeGetRequest(USER_ENDPOINT), USER_TYPE_TOKEN);
     }
@@ -137,5 +138,12 @@ public class Github {
         ModelUtils.save(context, KEY_USER, user);
     }
 
+    private static User loadUser(Context context) {
+        return ModelUtils.read(context, KEY_USER, USER_TYPE_TOKEN);
+    }
+
+    public static User getCurrentUser() {
+        return user;
+    }
 
 }

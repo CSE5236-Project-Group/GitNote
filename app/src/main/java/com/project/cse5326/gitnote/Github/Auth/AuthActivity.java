@@ -1,5 +1,6 @@
 package com.project.cse5326.gitnote.Github.Auth;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.HttpAuthHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -46,6 +48,7 @@ public class AuthActivity extends AppCompatActivity{
         progressBar.setMax(100);
 
         // Start Webview
+        CookieManager.getInstance().setAcceptCookie(true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient(){
             @Override

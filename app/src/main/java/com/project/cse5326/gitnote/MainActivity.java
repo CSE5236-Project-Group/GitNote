@@ -20,6 +20,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Utils.ImageUtils;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -102,11 +105,12 @@ public class MainActivity extends AppCompatActivity {
 
         View headerView = navigationView.inflateHeaderView(R.layout.drawer_header);
 
-        ((TextView) headerView.findViewById(R.id.nav_header_user_name)).setText("Zhenyu Liu");
-        ((ImageView) headerView.findViewById(R.id.nav_header_user_picture))
-                .setImageResource(R.drawable.user_picture_placeholder);
+        // User name & avatar
+        ((TextView) headerView.findViewById(R.id.nav_header_user_name))
+                .setText(Github.getCurrentUser().name);
+        ImageView userPicture = headerView.findViewById(R.id.nav_header_user_picture);
+        ImageUtils.loadUserPicture(this, userPicture, Github.getCurrentUser().avatar_url);
 
-        // set user name and pic
 
         // Logout button
         headerView.findViewById(R.id.nav_header_logout).setOnClickListener(new View.OnClickListener() {

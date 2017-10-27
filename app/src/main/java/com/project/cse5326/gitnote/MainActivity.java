@@ -48,45 +48,6 @@ public class MainActivity extends AppCompatActivity {
         setUpDrawer();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.i("cycle", "onStart called");
-    }
-
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        drawerToggle.syncState();
-    }
-
-    /* Called by the system when the device configuration changes while your activity is running. */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        drawerToggle.syncState();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Toast t = Toast.makeText(this, "Test test", Toast.LENGTH_LONG);
-        Log.i("cycle", "onResume called");
-    }
-
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.i("cycle", "onStop called");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i("cycle", "onDestory called");
-    }
 
     /* This hook is called whenever an item in your options menu is selected.*/
     @Override

@@ -92,8 +92,8 @@ public class Auth {
                 e.printStackTrace();
             }
 
-            Log.i("RESPOND", respond);
-            Log.i("ACC", respond.substring(13, 53));
+            Log.i("access_token_respond", respond);
+            Log.i("access_token_parse", respond.substring(13, 53));
             // return Access token
             return respond.substring(13, 53);
         }

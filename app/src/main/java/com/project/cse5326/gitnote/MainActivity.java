@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("cycle", "onCreate called");
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
@@ -48,6 +47,18 @@ public class MainActivity extends AppCompatActivity {
         setUpDrawer();
     }
 
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    /* Called by the system when the device configuration changes while your activity is running. */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.syncState();
+    }
 
     /* This hook is called whenever an item in your options menu is selected.*/
     @Override

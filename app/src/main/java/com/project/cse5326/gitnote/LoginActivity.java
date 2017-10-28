@@ -39,12 +39,10 @@ public class LoginActivity extends AppCompatActivity {
             loginBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.i("Click", "click");
                     Auth.openAuthActivity(LoginActivity.this);
                 }
             });
         } else {
-            Log.i("MAIN", "MAIN");
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -58,13 +56,13 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == Auth.REQ_CODE && resultCode == RESULT_OK) {
             final String authCode = data.getStringExtra(AuthActivity.KEY_CODE);
 
-            Log.i("CODE2", authCode);
+            Log.i("tmp_code", authCode);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         String token = Auth.fetchAccessToken(authCode);
-                        Log.i("TOKEN", token);
+                        Log.i("access_token", token);
                         Github.login(LoginActivity.this, token);
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);

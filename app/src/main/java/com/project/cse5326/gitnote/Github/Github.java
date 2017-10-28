@@ -59,7 +59,7 @@ public class Github {
     private static Response makeRequest(Request request) throws GithubException {
         try {
             Response response = client.newCall(request).execute();
-            Log.i("respon", response.toString());
+            Log.i("request_respond", response.toString());
             return response;
         } catch (IOException e) {
             throw new GithubException(e.getMessage());
@@ -70,7 +70,7 @@ public class Github {
     private static Response makeGetRequest(@NonNull String url) throws GithubException {
         Request request = authRequestBuilder(url).build();
 
-        Log.i("url", request.toString());
+        Log.i("get_url", request.toString());
         return makeRequest(request);
     }
 

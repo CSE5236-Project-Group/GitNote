@@ -1,0 +1,30 @@
+package com.project.cse5326.gitnote;
+
+import android.content.Context;
+import android.content.Intent;
+import android.support.v4.app.Fragment;
+
+/**
+ * Created by sifang on 11/5/17.
+ */
+
+public class NoteShowActivity extends SingleFragmentActivity {
+
+    public static final String EXTRA_NOTE_ID = "com.project.cse5235.gitnote.note_id";
+
+    @Override
+    protected Fragment createFragment() {
+        int noteId = (int) getIntent().getIntExtra(EXTRA_NOTE_ID, 0);
+        return NoteShowFragment.newInstance(noteId);
+    }
+
+    public static Intent newIntent(Context packageContext, int noteId){
+        Intent intent = new Intent(packageContext, NoteShowActivity.class);
+        intent.putExtra(EXTRA_NOTE_ID, noteId);
+
+        return intent;
+    }
+
+
+
+}

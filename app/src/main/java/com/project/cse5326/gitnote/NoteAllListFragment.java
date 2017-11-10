@@ -19,12 +19,12 @@ import com.project.cse5326.gitnote.Model.NoteList;
 import java.util.List;
 
 /**
- * Created by sifang on 11/4/17.
+ * Created by sifang
  */
 
-public class NoteListFragment extends Fragment{
+public class NoteAllListFragment extends Fragment{
 
-    private static final int previewLength = 52;
+    private static final int previewLength = 20;
 
     private RecyclerView mNoteRecyclerView;
 
@@ -38,9 +38,9 @@ public class NoteListFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.fragment_note_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_note_all_list, container, false);
 
-        mNoteRecyclerView = view.findViewById(R.id.note_recycler_view);
+        mNoteRecyclerView = view.findViewById(R.id.note_all_recycler_view);
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         updateUI();
@@ -65,7 +65,7 @@ public class NoteListFragment extends Fragment{
             case R.id.new_note:
                 Note note = new Note();
                 NoteList.get().addNote(note);
-                Intent intent = NoteShowActivity.newIntent(getActivity(), note.getId());
+                Intent intent = NoteShowActivity.newIntent(getActivity(), note.getNumber());
                 startActivity(intent);
                 return true;
             default:
@@ -95,13 +95,13 @@ public class NoteListFragment extends Fragment{
         public void bind(Note note){
             mNote = note;
             mNoteTitle.setText(note.getTitle());
-            mNoteDate.setText(note.getDate().toString());
-            mNoteBodyPreview.setText(note.getBody().substring(0,previewLength) + "...");
+            mNoteDate.setText(note.getUpdate_at());
+            mNoteBodyPreview.setText(note.getBody());
         }
 
         @Override
         public void onClick(View v) {
-            Intent intent = NoteShowActivity.newIntent(getActivity(),mNote.getId());
+            Intent intent = NoteShowActivity.newIntent(getActivity(),mNote.getNumber());
             startActivity(intent);
         }
     }

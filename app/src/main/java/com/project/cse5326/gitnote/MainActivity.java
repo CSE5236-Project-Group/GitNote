@@ -1,7 +1,7 @@
 package com.project.cse5326.gitnote;
 
-import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Github.GithubException;
+import com.project.cse5326.gitnote.Model.NoteList;
 import com.project.cse5326.gitnote.Utils.ImageUtils;
 
 import butterknife.BindView;
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     // bind views
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
-    @BindView(R.id.toolbar) Toolbar toolbar;
+    @BindView(R.id.main_toolbar) Toolbar toolbar;
     @BindView(R.id.drawer) NavigationView navigationView;
     @BindView(R.id.text) TextView textView;
 
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         setUpDrawer();
-        showNoteList();
+        new FetchAllNotes().execute();
     }
 
     @Override
@@ -118,14 +120,34 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showNoteList(){
+    public void showNoteList() {
             FragmentManager fm = getSupportFragmentManager();
             Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
             if(fragment == null){
-                fragment = new NoteListFragment();
+                fragment = new NoteAllListFragment();
                 fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
             }
     }
 
+    public class FetchAllNotes extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                NoteList.set(Github.getNotes(1));
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            showNoteList();
+        }
+
+
+    }
 }

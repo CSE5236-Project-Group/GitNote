@@ -3,6 +3,7 @@ package com.project.cse5326.gitnote;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,10 +19,10 @@ import com.project.cse5326.gitnote.Model.NoteList;
 import us.feras.mdv.MarkdownView;
 
 /**
- * Created by sifang on 11/5/17.
+ * Created by sifang
  */
 
-public class NoteShowFragment extends Fragment {
+public class NoteShowContentFragment extends Fragment {
 
     private static final String ARG_NOTE_ID = "note_id";
 
@@ -30,11 +31,11 @@ public class NoteShowFragment extends Fragment {
     private MarkdownView mNoteBody;
 
 
-    public static NoteShowFragment newInstance(int noteId){
+    public static NoteShowContentFragment newInstance(int noteId){
         Bundle args = new Bundle();
         args.putInt(ARG_NOTE_ID, noteId);
 
-        NoteShowFragment fragment = new NoteShowFragment();
+        NoteShowContentFragment fragment = new NoteShowContentFragment();
         fragment.setArguments(args);
 
         return fragment;
@@ -52,15 +53,20 @@ public class NoteShowFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                 final Bundle savedInstanceState){
-            View view = inflater.inflate(R.layout.fragment_note_show, container, false);
-            mNoteTitle = view.findViewById(R.id.show_note_title);
-            mNoteBody = view.findViewById(R.id.show_note_body);
-
-            getActivity().setTitle(mNote.getTitle());
-            mNoteTitle.setText(mNote.getTitle());
-            mNoteBody.loadMarkdown(mNote.getBody());
-
+            View view = inflater.inflate(R.layout.fragment_note_content, container, false);
             return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mNoteTitle = view.findViewById(R.id.show_note_title);
+        mNoteBody = view.findViewById(R.id.show_note_body);
+
+        getActivity().setTitle(mNote.getTitle());
+        mNoteTitle.setText(mNote.getTitle());
+        mNoteBody.loadMarkdown(mNote.getBody());
+
     }
 
     @Override
@@ -73,7 +79,7 @@ public class NoteShowFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.edit_note:
-                Intent intent = NoteEditActivity.newIntent(getActivity(), mNote.getId());
+                Intent intent = NoteEditActivity.newIntent(getActivity(), mNote.getNumber());
                 startActivity(intent);
                 return true;
             default:

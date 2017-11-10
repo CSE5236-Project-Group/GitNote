@@ -11,24 +11,28 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Model.Note;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
+
 /**
  * Created by sifang
  */
 
 public class NoteShowActivity extends AppCompatActivity {
 
-    public static final String EXTRA_NOTE_ID = "com.project.cse5235.gitnote.note_id";
+    public static final String EXTRA_NOTE = "com.project.cse5235.gitnote.note";
 
-    private int mNoteId;
+    private Note mNote;
     private Toolbar mToolbar;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
 
 
-    public static Intent newIntent(Context packageContext, int noteId){
+    public static Intent newIntent(Context packageContext, Note note){
         Intent intent = new Intent(packageContext, NoteShowActivity.class);
-        intent.putExtra(EXTRA_NOTE_ID, noteId);
+        intent.putExtra(EXTRA_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
 
         return intent;
     }
@@ -38,15 +42,14 @@ public class NoteShowActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_page);
 
-        mNoteId = (int) getIntent().getIntExtra(EXTRA_NOTE_ID, 0);
-
+        mNote = ModelUtils.toObject(getIntent().getStringExtra(EXTRA_NOTE), new TypeToken<Note>(){});
         mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         mViewPager = (ViewPager) findViewById(R.id.note_viewpager);
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), mNoteId);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), mNote);
         mViewPager.setAdapter(adapter);
 
         mTabLayout = (TabLayout) findViewById(R.id.note_tabs);
@@ -58,19 +61,19 @@ public class NoteShowActivity extends AppCompatActivity {
     class ViewPagerAdapter extends FragmentPagerAdapter {
 
         private String mTitle[] = {"Note", "Comment"};
-        private int mNoteId;
+        private Note mNote;
 
-        public ViewPagerAdapter(FragmentManager manager, int noteId) {
+        public ViewPagerAdapter(FragmentManager manager, Note note) {
             super(manager);
-            this.mNoteId = noteId;
+            this.mNote = note;
         }
 
         @Override
         public Fragment getItem(int position) {
             if (position == 0){
-                return NoteShowContentFragment.newInstance(mNoteId);
+                return NoteShowContentFragment.newInstance(mNote);
             }else if(position == 1){
-                return NoteShowCommentFragment.newInstance(mNoteId);
+                return NoteShowCommentFragment.newInstance(mNote);
             }
             return null;
         }

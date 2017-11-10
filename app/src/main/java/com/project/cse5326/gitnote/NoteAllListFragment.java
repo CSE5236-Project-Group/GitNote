@@ -13,8 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
-import com.project.cse5326.gitnote.Model.NoteList;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 
@@ -24,14 +25,28 @@ import java.util.List;
 
 public class NoteAllListFragment extends Fragment{
 
+    private static final String ARG_NOTES = "notes";
     private static final int previewLength = 20;
 
+    private List<Note> mNotes;
     private RecyclerView mNoteRecyclerView;
+
+    public static NoteAllListFragment newInstance(List<Note> notes){
+        Bundle args = new Bundle();
+        args.putString(ARG_NOTES, ModelUtils.toString(notes, new TypeToken<List<Note>>(){}));
+
+        NoteAllListFragment fragment = new NoteAllListFragment();
+        fragment.setArguments(args);
+
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mNotes = ModelUtils.toObject(getArguments().getString(ARG_NOTES), new TypeToken<List<Note>>(){});
         setHasOptionsMenu(true);
+
     }
 
 
@@ -49,8 +64,7 @@ public class NoteAllListFragment extends Fragment{
     }
 
     private void updateUI(){
-        NoteList noteList = NoteList.get();
-        mNoteRecyclerView.setAdapter(new NoteAdapter(noteList.getNoteList()));
+        mNoteRecyclerView.setAdapter(new NoteAdapter(mNotes));
     }
 
     @Override
@@ -64,9 +78,7 @@ public class NoteAllListFragment extends Fragment{
         switch (item.getItemId()){
             case R.id.new_note:
                 Note note = new Note();
-                NoteList.get().addNote(note);
-                Intent intent = NoteShowActivity.newIntent(getActivity(), note.getNumber());
-                startActivity(intent);
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -101,7 +113,7 @@ public class NoteAllListFragment extends Fragment{
 
         @Override
         public void onClick(View v) {
-            Intent intent = NoteShowActivity.newIntent(getActivity(),mNote.getNumber());
+            Intent intent = NoteShowActivity.newIntent(getActivity(),mNote);
             startActivity(intent);
         }
     }

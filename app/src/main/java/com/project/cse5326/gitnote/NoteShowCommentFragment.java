@@ -8,19 +8,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Model.Note;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
+
 /**
  * Created by sifang
  */
 
 public class NoteShowCommentFragment extends Fragment {
 
-    private static final String ARG_NOTE_ID = "note_id";
+    private static final String ARG_NOTE = "note";
 
     private RecyclerView mCommentRecyclerView;
 
-    public static NoteShowCommentFragment newInstance(int noteId){
+    public static NoteShowCommentFragment newInstance(Note note){
         Bundle args = new Bundle();
-        args.putInt(ARG_NOTE_ID, noteId);
+        args.putString(ARG_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
 
         NoteShowCommentFragment fragment = new NoteShowCommentFragment();
         fragment.setArguments(args);

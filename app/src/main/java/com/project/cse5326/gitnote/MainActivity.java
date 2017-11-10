@@ -20,8 +20,10 @@ import android.widget.Toast;
 
 import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Github.GithubException;
-import com.project.cse5326.gitnote.Model.NoteList;
+import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ImageUtils;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -120,22 +122,24 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showNoteList() {
+    public void showNoteList(List<Note> notes) {
             FragmentManager fm = getSupportFragmentManager();
             Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
             if(fragment == null){
-                fragment = new NoteAllListFragment();
+                fragment = NoteAllListFragment.newInstance(notes);
                 fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
             }
     }
 
     public class FetchAllNotes extends AsyncTask<String, String, String> {
 
+        List<Note> mNotes;
+
         @Override
         protected String doInBackground(String... strings) {
             try {
-                NoteList.set(Github.getNotes(1));
+                mNotes = Github.getNotes(1);
             } catch (GithubException e) {
                 e.printStackTrace();
             }
@@ -145,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            showNoteList();
+            showNoteList(mNotes);
         }
 
 

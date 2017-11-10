@@ -14,7 +14,7 @@
         android:orientation="vertical">
 
         <!-- so that tool bar wont be the highest priority -->
-        <include layout="@layout/toolbar" />
+        <include layout="@layout/toolbar_main" />
 
         <FrameLayout
             android:id="@+id/fragment_container"

@@ -1,8 +1,6 @@
 package com.project.cse5326.gitnote;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,7 +13,7 @@ import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.NoteList;
 
 /**
- * Created by sifang on 11/5/17.
+ * Created by sifang
  */
 
 public class NoteEditFragment extends Fragment {
@@ -43,7 +41,6 @@ public class NoteEditFragment extends Fragment {
         mNote = NoteList.get().getNote(noteId);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              final Bundle savedInstanceState){

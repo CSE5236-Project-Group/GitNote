@@ -15,8 +15,7 @@ import butterknife.ButterKnife;
 
 public abstract class SingleFragmentActivity extends AppCompatActivity {
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
+    @BindView(R.id.main_toolbar) Toolbar toolbar;
 
     protected abstract Fragment createFragment();
 

@@ -4,17 +4,20 @@ package com.project.cse5326.gitnote.Github;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
-import android.text.BoringLayout;
 import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Model.Note;
+import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Model.User;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Github {
@@ -25,7 +28,13 @@ public class Github {
     private static final String API_URL = "https://api.github.com";
     private static final String USER_ENDPOINT = API_URL + "/user";
     private static final String USERS_ENDPOINT = API_URL + "users";
-    // TODO more endpoint
+
+    // Request note url
+    private static final String NOTES_ENDPOINT = USER_ENDPOINT + "/issues";
+    private static final String SCOPE_ALL = "filter=all&state=all&sort=updated&direction=desc";
+
+    // Request repo rul
+    private static final String REPO_ENDPOINT = USER_ENDPOINT + "/repos";
 
     // SharePreference key, to store access token
     private static final String SP_AUTH = "auth";
@@ -37,8 +46,11 @@ public class Github {
     private static User user;
 
     // TypeToken
-    private static final TypeToken<User> USER_TYPE_TOKEN = new TypeToken<User>() {
-    };
+    private static final TypeToken<User> USER_TYPE_TOKEN = new TypeToken<User>(){};
+    private static final TypeToken<Note> NOTE_TYPE_TOKEN = new TypeToken<Note>(){};
+    private static final TypeToken<List<Note>> NOTES_TYPE_TOKEN = new TypeToken<List<Note>>(){};
+    private static final TypeToken<Repo> REPO_TYPE_TOKEN = new TypeToken<Repo>(){};
+    private static final TypeToken<List<Repo>> REPOS_TYPE_TOKEN = new TypeToken<List<Repo>>(){};
     // TODO more type
 
     // HTTP client
@@ -74,10 +86,29 @@ public class Github {
         return makeRequest(request);
     }
 
+    // Check status
     private static void checkStatusCode(Response response, int statusCode) throws GithubException {
         if (response.code() != statusCode) {
             throw new GithubException(response.message());
         }
+    }
+
+    // HTTP POST
+    private static Response makePostRequest(@NonNull String url, RequestBody requestBody)
+            throws GithubException {
+        Request request = authRequestBuilder(url)
+                .post(requestBody)
+                .build();
+        return makeRequest(request);
+    }
+
+    // HTTP DELETE
+    private static Response makeDeleteRequest(@NonNull String url)
+            throws GithubException{
+        Request request = authRequestBuilder(url)
+                .delete()
+                .build();
+        return makeRequest(request);
     }
 
     // Parse to target type
@@ -147,4 +178,20 @@ public class Github {
         return user;
     }
 
+    /*--------------------------------------------------------------------------------------------------
+     * Issues
+    --------------------------------------------------------------------------------------------------*/
+    // request all issues
+    public static List<Note> getNotes(int page) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_ENDPOINT + "?page=" + page
+                + '&' + SCOPE_ALL), NOTES_TYPE_TOKEN);
+    }
+
+    /*--------------------------------------------------------------------------------------------------
+     * Repo
+    --------------------------------------------------------------------------------------------------*/
+    // request all user repo
+    public static List<Repo> getRepos(int page) throws GithubException {
+        return parseResponse(makeGetRequest(REPO_ENDPOINT + "?page=" + page), REPOS_TYPE_TOKEN);
+    }
 }

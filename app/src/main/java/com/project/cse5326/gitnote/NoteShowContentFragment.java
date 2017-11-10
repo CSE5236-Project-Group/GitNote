@@ -13,8 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
-import com.project.cse5326.gitnote.Model.NoteList;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import us.feras.mdv.MarkdownView;
 
@@ -24,16 +25,16 @@ import us.feras.mdv.MarkdownView;
 
 public class NoteShowContentFragment extends Fragment {
 
-    private static final String ARG_NOTE_ID = "note_id";
+    private static final String ARG_NOTE = "note";
 
     private Note mNote;
     private TextView mNoteTitle;
     private MarkdownView mNoteBody;
 
 
-    public static NoteShowContentFragment newInstance(int noteId){
+    public static NoteShowContentFragment newInstance(Note note){
         Bundle args = new Bundle();
-        args.putInt(ARG_NOTE_ID, noteId);
+        args.putString(ARG_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
 
         NoteShowContentFragment fragment = new NoteShowContentFragment();
         fragment.setArguments(args);
@@ -44,8 +45,7 @@ public class NoteShowContentFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int noteId = (int) getArguments().getInt(ARG_NOTE_ID);
-        mNote = NoteList.get().getNote(noteId);
+        mNote = ModelUtils.toObject(getArguments().getString(ARG_NOTE), new TypeToken<Note>(){});
 
         setHasOptionsMenu(true);
     }
@@ -79,7 +79,7 @@ public class NoteShowContentFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.edit_note:
-                Intent intent = NoteEditActivity.newIntent(getActivity(), mNote.getNumber());
+                Intent intent = NoteEditActivity.newIntent(getActivity(), mNote);
                 startActivity(intent);
                 return true;
             default:

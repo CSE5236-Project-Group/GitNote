@@ -9,8 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
-import com.project.cse5326.gitnote.Model.NoteList;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 /**
  * Created by sifang
@@ -18,15 +19,15 @@ import com.project.cse5326.gitnote.Model.NoteList;
 
 public class NoteEditFragment extends Fragment {
 
-    private static final String ARG_NOTE_ID = "note_id";
+    private static final String ARG_NOTE = "note";
 
     private Note mNote;
     private EditText mNoteTitle;
     private EditText mNoteBody;
 
-    public static NoteEditFragment newInstance(int noteId){
+    public static NoteEditFragment newInstance(Note note){
         Bundle args = new Bundle();
-        args.putInt(ARG_NOTE_ID, noteId);
+        args.putString(ARG_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
 
         NoteEditFragment fragment = new NoteEditFragment();
         fragment.setArguments(args);
@@ -37,8 +38,7 @@ public class NoteEditFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int noteId = getArguments().getInt(ARG_NOTE_ID);
-        mNote = NoteList.get().getNote(noteId);
+        mNote = ModelUtils.toObject(getArguments().getString(ARG_NOTE), new TypeToken<Note>(){});
     }
 
     @Override

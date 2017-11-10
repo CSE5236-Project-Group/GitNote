@@ -8,6 +8,8 @@ public class Repo {
 
     private int id;
     private String name;
+    private String full_name;
+
 
     public Repo(){
 

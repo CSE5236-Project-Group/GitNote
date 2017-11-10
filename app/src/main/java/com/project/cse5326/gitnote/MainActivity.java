@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Github.GithubException;
+import com.project.cse5326.gitnote.Model.NoteList;
 import com.project.cse5326.gitnote.Utils.ImageUtils;
 
 import butterknife.BindView;
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             try {
-                Github.getAllNotes();
+                NoteList.set(Github.getNotes(1));
             } catch (GithubException e) {
                 e.printStackTrace();
             }

@@ -95,8 +95,8 @@ public class NoteAllListFragment extends Fragment{
         public void bind(Note note){
             mNote = note;
             mNoteTitle.setText(note.getTitle());
-            mNoteDate.setText(note.getUpdate_at().toString());
-            mNoteBodyPreview.setText(note.getBody().substring(0,previewLength) + "...");
+            mNoteDate.setText(note.getUpdate_at());
+            mNoteBodyPreview.setText(note.getBody());
         }
 
         @Override

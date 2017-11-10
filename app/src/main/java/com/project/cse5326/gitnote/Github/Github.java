@@ -8,17 +8,16 @@ import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
-import com.project.cse5326.gitnote.Model.NoteList;
+import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Model.User;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class Github {
@@ -29,22 +28,29 @@ public class Github {
     private static final String API_URL = "https://api.github.com";
     private static final String USER_ENDPOINT = API_URL + "/user";
     private static final String USERS_ENDPOINT = API_URL + "users";
-    private static final String ALL_ISSUE_ENDPOINT = API_URL + "/issues?filter=all&state=all";
-    // TODO more endpoint
+
+    // Request note url
+    private static final String NOTES_ENDPOINT = USER_ENDPOINT + "/issues";
+    private static final String SCOPE_ALL = "filter=all&state=all&sort=updated&direction=desc";
+
+    // Request repo rul
+    private static final String REPO_ENDPOINT = USER_ENDPOINT + "/repos";
 
     // SharePreference key, to store access token
     private static final String SP_AUTH = "auth";
     private static final String KEY_ACCESS_TOKEN = "access_token";
     private static final String KEY_USER = "user";
-    private static final String KEY_ALL_NOTES = "note_list";
 
     // Memory variable
     private static String accessToken;
     private static User user;
 
     // TypeToken
-    private static final TypeToken<User> USER_TYPE_TOKEN = new TypeToken<User>() {};
-    private static final TypeToken<Collection<Note>> ALL_NOTES_TYPE_TOKEN = new TypeToken<Collection<Note>>(){};
+    private static final TypeToken<User> USER_TYPE_TOKEN = new TypeToken<User>(){};
+    private static final TypeToken<Note> NOTE_TYPE_TOKEN = new TypeToken<Note>(){};
+    private static final TypeToken<List<Note>> NOTES_TYPE_TOKEN = new TypeToken<List<Note>>(){};
+    private static final TypeToken<Repo> REPO_TYPE_TOKEN = new TypeToken<Repo>(){};
+    private static final TypeToken<List<Repo>> REPOS_TYPE_TOKEN = new TypeToken<List<Repo>>(){};
     // TODO more type
 
     // HTTP client
@@ -56,9 +62,10 @@ public class Github {
 
     // Form builder with bearer
     private static Request.Builder authRequestBuilder(String url) {
+        Log.i("access_token", accessToken);
         return new Request
                 .Builder()
-                .addHeader("Authorization", "token " + accessToken)
+                .addHeader("Authorization", "Bearer " + accessToken)
                 .url(url);
     }
 
@@ -77,14 +84,32 @@ public class Github {
         Request request = authRequestBuilder(url).build();
 
         Log.i("get_url", request.toString());
-        Log.i("get_url_header", request.headers().toString());
         return makeRequest(request);
     }
 
+    // Check status
     private static void checkStatusCode(Response response, int statusCode) throws GithubException {
         if (response.code() != statusCode) {
             throw new GithubException(response.message());
         }
+    }
+
+    // HTTP POST
+    private static Response makePostRequest(@NonNull String url, RequestBody requestBody)
+            throws GithubException {
+        Request request = authRequestBuilder(url)
+                .post(requestBody)
+                .build();
+        return makeRequest(request);
+    }
+
+    // HTTP DELETE
+    private static Response makeDeleteRequest(@NonNull String url)
+            throws GithubException{
+        Request request = authRequestBuilder(url)
+                .delete()
+                .build();
+        return makeRequest(request);
     }
 
     // Parse to target type
@@ -131,8 +156,6 @@ public class Github {
         Log.i("User", user.name);
     }
 
-
-
     private static void storeAccessToken(Context context, String accessToken) {
         SharedPreferences sp = context.getApplicationContext()
                 .getSharedPreferences(SP_AUTH, Context.MODE_PRIVATE);
@@ -156,14 +179,20 @@ public class Github {
         return user;
     }
 
-    // Notes Info
-    private static List<Note> fetchAllNotes() throws GithubException{
-        Collection<Note> notes =  parseResponse(makeGetRequest(ALL_ISSUE_ENDPOINT),ALL_NOTES_TYPE_TOKEN);
-        return new ArrayList<>(notes);
+    /*--------------------------------------------------------------------------------------------------
+     * Issues
+    --------------------------------------------------------------------------------------------------*/
+    // request all issues
+    public static List<Note> getNotes(int page) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_ENDPOINT + "?page=" + page
+                + '&' + SCOPE_ALL), NOTES_TYPE_TOKEN);
     }
 
-    public static void getAllNotes() throws GithubException {
-        NoteList.set(fetchAllNotes());
+    /*--------------------------------------------------------------------------------------------------
+     * Repo
+    --------------------------------------------------------------------------------------------------*/
+    // request all user repo
+    public static List<Repo> getRepos(int page) throws GithubException {
+        return parseResponse(makeGetRequest(REPO_ENDPOINT + "?page=" + page), REPOS_TYPE_TOKEN);
     }
-
 }

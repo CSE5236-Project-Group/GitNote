@@ -1,5 +1,7 @@
 package com.project.cse5326.gitnote.Model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 /**
@@ -8,11 +10,33 @@ import java.util.Date;
 
 public class Note {
 
+    @SerializedName("number")
     private int number;
+    @SerializedName("update_at")
     private String update_at;
+    @SerializedName("title")
     private String title;
+    @SerializedName("body")
     private String body;
+    @SerializedName("comment")
     private String comment;
+//    private Label label;
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+//    public Label getLabel() {
+//        return label;
+//    }
+//
+//    public void setLabel(Label label) {
+//        this.label = label;
+//    }
 
     public Note(){}
 

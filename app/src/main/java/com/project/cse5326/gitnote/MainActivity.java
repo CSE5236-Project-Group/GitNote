@@ -1,5 +1,6 @@
 package com.project.cse5326.gitnote;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.Note;
+import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ImageUtils;
 
 import java.util.List;
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "All Notes", Toast.LENGTH_LONG).show();
                         break;
                     case R.id.drawer_item_Note_Repo:
-                        Toast.makeText(MainActivity.this, "Note repo", Toast.LENGTH_LONG).show();
+                        new FetchAllRepos().execute();
                         break;
                     case R.id.drawer_item_gists:
                         Toast.makeText(MainActivity.this, "gists", Toast.LENGTH_LONG).show();
@@ -120,16 +122,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
-
-    public void showNoteList(List<Note> notes) {
-            FragmentManager fm = getSupportFragmentManager();
-            Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-
-            if(fragment == null){
-                fragment = NoteAllListFragment.newInstance(notes);
-                fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
-            }
     }
 
     public class FetchAllNotes extends AsyncTask<String, String, String> {
@@ -151,7 +143,42 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(s);
             showNoteList(mNotes);
         }
-
-
     }
+
+    public class FetchAllRepos extends AsyncTask<String, String, String> {
+
+        List<Repo> mRepos;
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                mRepos = Github.getRepos(1);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            showRepoList(mRepos);
+        }
+    }
+
+    public void showNoteList(List<Note> notes) {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+
+        if(fragment == null){
+            fragment = NoteListFragment.newInstance(notes);
+            fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
+        }
+    }
+
+    public void showRepoList(List<Repo> repos) {
+        Intent intent = RepoListShowActivity.newIntent(MainActivity.this, repos);
+        startActivity(intent);
+    }
+
 }

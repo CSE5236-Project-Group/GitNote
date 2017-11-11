@@ -24,6 +24,8 @@
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".NoteEditActivity"
             android:parentActivityName=".NoteShowActivity"/>
+        <activity android:name=".RepoListShowActivity"
+            android:parentActivityName=".MainActivity"/>
     </application>
 
 </manifest>

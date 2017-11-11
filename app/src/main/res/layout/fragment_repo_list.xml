@@ -6,8 +6,6 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/toolbar_main" />
-
     <android.support.v7.widget.RecyclerView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/repo_all_recycler_view"

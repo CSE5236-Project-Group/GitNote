@@ -23,7 +23,7 @@ import java.util.List;
  * Created by sifang
  */
 
-public class NoteAllListFragment extends Fragment{
+public class NoteListFragment extends Fragment{
 
     private static final String ARG_NOTES = "notes";
     private static final int previewLength = 20;
@@ -31,11 +31,11 @@ public class NoteAllListFragment extends Fragment{
     private List<Note> mNotes;
     private RecyclerView mNoteRecyclerView;
 
-    public static NoteAllListFragment newInstance(List<Note> notes){
+    public static NoteListFragment newInstance(List<Note> notes){
         Bundle args = new Bundle();
         args.putString(ARG_NOTES, ModelUtils.toString(notes, new TypeToken<List<Note>>(){}));
 
-        NoteAllListFragment fragment = new NoteAllListFragment();
+        NoteListFragment fragment = new NoteListFragment();
         fragment.setArguments(args);
 
         return fragment;
@@ -53,9 +53,9 @@ public class NoteAllListFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.fragment_note_all_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_list, container, false);
 
-        mNoteRecyclerView = view.findViewById(R.id.note_all_recycler_view);
+        mNoteRecyclerView = view.findViewById(R.id.recycler_view);
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         updateUI();

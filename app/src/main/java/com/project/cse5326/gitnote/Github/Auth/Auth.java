@@ -26,7 +26,7 @@ import okhttp3.RequestBody;
 public class Auth {
     public static final int REQ_CODE = 100;
 
-    // Constant parameter name from Github API
+    // Constant parameter number from Github API
     private static final String KEY_CODE = "code";
     private static final String KEY_CLIENT_ID = "client_id";
     private static final String KEY_CLIENT_SECRET = "client_secret";

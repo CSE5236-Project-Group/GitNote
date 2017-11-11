@@ -48,7 +48,7 @@ public class NoteEditFragment extends Fragment {
         mNoteTitle = view.findViewById(R.id.edit_note_title);
         mNoteBody = view.findViewById(R.id.edit_note_body);
 
-        getActivity().setTitle(mNote.getTitle());
+//        getActivity().setTitle(mNote.getTitle());
 
         mNoteTitle.setText(mNote.getTitle());
         mNoteTitle.addTextChangedListener(new TextWatcher() {

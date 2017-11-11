@@ -23,7 +23,7 @@ import us.feras.mdv.MarkdownView;
  * Created by sifang
  */
 
-public class NoteShowContentFragment extends Fragment {
+public class NoteContentFragment extends Fragment {
 
     private static final String ARG_NOTE = "note";
 
@@ -32,11 +32,11 @@ public class NoteShowContentFragment extends Fragment {
     private MarkdownView mNoteBody;
 
 
-    public static NoteShowContentFragment newInstance(Note note){
+    public static NoteContentFragment newInstance(Note note){
         Bundle args = new Bundle();
         args.putString(ARG_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
 
-        NoteShowContentFragment fragment = new NoteShowContentFragment();
+        NoteContentFragment fragment = new NoteContentFragment();
         fragment.setArguments(args);
 
         return fragment;

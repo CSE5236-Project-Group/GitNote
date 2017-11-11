@@ -34,9 +34,13 @@ public class Github {
     // Request note url
     private static final String NOTES_ENDPOINT = USER_ENDPOINT + "/issues";
     private static final String SCOPE_ALL = "filter=all&state=all&sort=updated&direction=desc";
+    private static final String NOTES_REPO_ENDPOINT = API_URL + "/repos";
+
+    // Request milestone url
+    private static final String MILESTONE_ENDPOINT = API_URL + "/repos";
 
     // Request repo rul
-    private static final String REPO_ENDPOINT = USER_ENDPOINT + "/repos";
+    private static final String REPO_ENDPOINT = USER_ENDPOINT +  "/repos";
 
     // SharePreference key, to store access token
     private static final String SP_AUTH = "auth";
@@ -206,17 +210,9 @@ public class Github {
                 + repo + "/issues" + id + "/comments"), new TypeToken<List<String>>(){});
     }
 
-    // get issues by milestone (by id)
-    public static List<Note> getNotes(String repo, int milestone) throws GithubException {
-        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/" + user.name + "/"
-                + repo + "/issues" + "?milestone=" + milestone), NOTES_TYPE_TOKEN);
-    }
 
     // get issues by repo
-    public static List<Note> getNotes(String repo) throws GithubException {
-        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/" + user.name + "/"
-                + repo + "/issues"), NOTES_TYPE_TOKEN);
-    }
+
 
     /*--------------------------------------------------------------------------------------------------
      * Repo
@@ -230,8 +226,4 @@ public class Github {
      * MileStone
     --------------------------------------------------------------------------------------------------*/
 
-    public static List<MileStone> getMileStone(String repo) throws GithubException {
-        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/"
-                + user.name + "/" + repo + "/milesones"), MILESTONES_TYPE_TOKEN);
-    }
 }

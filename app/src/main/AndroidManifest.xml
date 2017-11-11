@@ -24,6 +24,12 @@
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".NoteEditActivity"
             android:parentActivityName=".NoteShowActivity"/>
+        <activity android:name=".RepoListShowActivity"
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".RepoShowActivity"
+            android:parentActivityName=".RepoListShowActivity"/>
+        <activity android:name=".MileStoneNoteListActivity"
+            android:parentActivityName=".RepoShowActivity"/>
     </application>
 
 </manifest>

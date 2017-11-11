@@ -40,7 +40,7 @@ public class NoteShowActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_note_page);
+        setContentView(R.layout.activity_show_page);
 
         mNote = ModelUtils.toObject(getIntent().getStringExtra(EXTRA_NOTE), new TypeToken<Note>(){});
         mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
@@ -48,11 +48,11 @@ public class NoteShowActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        mViewPager = (ViewPager) findViewById(R.id.note_viewpager);
+        mViewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), mNote);
         mViewPager.setAdapter(adapter);
 
-        mTabLayout = (TabLayout) findViewById(R.id.note_tabs);
+        mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
     }
@@ -71,9 +71,9 @@ public class NoteShowActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0){
-                return NoteShowContentFragment.newInstance(mNote);
+                return NoteContentFragment.newInstance(mNote);
             }else if(position == 1){
-                return NoteShowCommentFragment.newInstance(mNote);
+                return NoteCommentFragment.newInstance(mNote);
             }
             return null;
         }

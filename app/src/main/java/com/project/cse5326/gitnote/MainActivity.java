@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         View headerView = navigationView.inflateHeaderView(R.layout.drawer_header);
 
-        // User name & avatar
+        // User title & avatar
         ((TextView) headerView.findViewById(R.id.nav_header_user_name))
                 .setText(Github.getCurrentUser().name);
         ImageView userPicture = headerView.findViewById(R.id.nav_header_user_picture);

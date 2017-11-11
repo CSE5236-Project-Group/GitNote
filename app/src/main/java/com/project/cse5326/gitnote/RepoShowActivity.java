@@ -13,11 +13,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Github.GithubException;
+import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by sifang
@@ -45,54 +49,111 @@ public class RepoShowActivity extends AppCompatActivity {
         setContentView(R.layout.activity_show_page);
 
         mRepo = ModelUtils.toObject(getIntent().getStringExtra(EXTRA_REPO), new TypeToken<Repo>(){});
+
+        setTitle(mRepo.getName());
+
         mToolbar = findViewById(R.id.main_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-        mTabLayout = findViewById(R.id.tabs);
 
         mViewPager = findViewById(R.id.viewpager);
+        List<Note> notes = null;
+        List<MileStone> mileStones = null;
+        try {
+           notes = new FetchRepoAllNotes(mRepo.getName()).execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        try {
+            mileStones = new FetchRepoMileStones(mRepo.getName()).execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        RepoShowActivity.ViewPagerAdapter adapter = new RepoShowActivity.ViewPagerAdapter(getSupportFragmentManager()
+                , notes, mileStones);
+        mViewPager.setAdapter(adapter);
 
-
+        mTabLayout = findViewById(R.id.tabs);
+        mTabLayout.setupWithViewPager(mViewPager);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter{
 
         private String mTitle[] = {"All Notes", "MileStones"};
-        private Repo mRepo;
+        private List<Note> mNotes;
+        private List<MileStone> mMileStones;
 
-        public ViewPagerAdapter(FragmentManager fm, Repo repo) {
+        public ViewPagerAdapter(FragmentManager fm,
+                                List<Note> notes, List<MileStone> mileStones) {
             super(fm);
-            mRepo = repo;
+            mNotes = notes;
+            mMileStones = mileStones;
         }
 
         @Override
         public Fragment getItem(int position) {
-
+            switch (position){
+                case 0:
+                    return NoteListFragment.newInstance(mNotes);
+                case 1:
+                    return MileStoneListFragment.newInstance(mMileStones, mRepo.getName());
+            }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 0;
-        }
-    }
-
-    public class FetchRepoAllNotes extends AsyncTask<String, String, String>{
-
-        List<Note> mNotes;
-
-        @Override
-        protected String doInBackground(String... strings) {
-            return null;
+            return mTitle.length;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-
+        public CharSequence getPageTitle(int position) {
+            return mTitle[position];
         }
     }
 
+    public class FetchRepoAllNotes extends AsyncTask<String, String, List<Note>>{
 
+        String mRepoName;
+
+        public FetchRepoAllNotes(String repoName){
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected List<Note> doInBackground(String... strings) {
+            List<Note> notes = null;
+            try {
+                notes = Github.getNotes(mRepoName);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return notes;
+        }
+    }
+
+    public class FetchRepoMileStones extends AsyncTask<String, String, List<MileStone>> {
+
+        String mRepoName;
+
+        public FetchRepoMileStones(String repoName) {
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected List<MileStone> doInBackground(String... strings) {
+            List<MileStone> mileStones = null;
+            try {
+                mileStones = Github.getMileStone(mRepoName);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return mileStones;
+        }
+    }
 }

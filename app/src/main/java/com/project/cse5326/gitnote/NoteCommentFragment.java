@@ -16,17 +16,17 @@ import com.project.cse5326.gitnote.Utils.ModelUtils;
  * Created by sifang
  */
 
-public class NoteShowCommentFragment extends Fragment {
+public class NoteCommentFragment extends Fragment {
 
     private static final String ARG_NOTE = "note";
 
     private RecyclerView mCommentRecyclerView;
 
-    public static NoteShowCommentFragment newInstance(Note note){
+    public static NoteCommentFragment newInstance(Note note){
         Bundle args = new Bundle();
         args.putString(ARG_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
 
-        NoteShowCommentFragment fragment = new NoteShowCommentFragment();
+        NoteCommentFragment fragment = new NoteCommentFragment();
         fragment.setArguments(args);
 
         return fragment;

@@ -71,9 +71,9 @@ public class NoteShowActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0){
-                return NoteShowContentFragment.newInstance(mNote);
+                return NoteContentFragment.newInstance(mNote);
             }else if(position == 1){
-                return NoteShowCommentFragment.newInstance(mNote);
+                return NoteCommentFragment.newInstance(mNote);
             }
             return null;
         }

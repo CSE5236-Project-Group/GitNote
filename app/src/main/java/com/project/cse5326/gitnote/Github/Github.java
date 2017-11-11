@@ -210,9 +210,17 @@ public class Github {
                 + repo + "/issues" + id + "/comments"), new TypeToken<List<String>>(){});
     }
 
+    // get issues by milestone (by number)
+    public static List<Note> getNotes(String repo, int milestone) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
+                + repo + "/issues" + "?milestone=" + milestone), NOTES_TYPE_TOKEN);
+    }
 
     // get issues by repo
-
+    public static List<Note> getNotes(String repo) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
+                + repo + "/issues"), NOTES_TYPE_TOKEN);
+    }
 
     /*--------------------------------------------------------------------------------------------------
      * Repo
@@ -226,4 +234,8 @@ public class Github {
      * MileStone
     --------------------------------------------------------------------------------------------------*/
 
+    public static List<MileStone> getMileStone(String repo) throws GithubException {
+        return parseResponse(makeGetRequest(MILESTONE_ENDPOINT + "/"
+                + user.login + "/" + repo + "/milestones"), MILESTONES_TYPE_TOKEN);
+    }
 }

@@ -3,10 +3,12 @@ package com.project.cse5326.gitnote.Github;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.audiofx.NoiseSuppressor;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Model.User;
@@ -51,6 +53,8 @@ public class Github {
     private static final TypeToken<List<Note>> NOTES_TYPE_TOKEN = new TypeToken<List<Note>>(){};
     private static final TypeToken<Repo> REPO_TYPE_TOKEN = new TypeToken<Repo>(){};
     private static final TypeToken<List<Repo>> REPOS_TYPE_TOKEN = new TypeToken<List<Repo>>(){};
+    private static final TypeToken<MileStone> MILESTONE_TYPE_TOKEN = new TypeToken<MileStone>(){};
+    private static final TypeToken<List<MileStone>> MILESTONES_TYPE_TOKEN = new TypeToken<List<MileStone>>(){};
     // TODO more type
 
     // HTTP client
@@ -108,6 +112,14 @@ public class Github {
             throws GithubException{
         Request request = authRequestBuilder(url)
                 .delete()
+                .build();
+        return makeRequest(request);
+    }
+
+    // HTTP PATCH
+    private static Response makePatchRequest(@NonNull String url, RequestBody requestBody) throws GithubException {
+        Request request = authRequestBuilder(url)
+                .patch(requestBody)
                 .build();
         return makeRequest(request);
     }
@@ -188,11 +200,38 @@ public class Github {
                 + '&' + SCOPE_ALL), NOTES_TYPE_TOKEN);
     }
 
+    // get issue comment
+    public static List<String> getNoteComment(String repo, int id) throws GithubException {
+        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/" + user.name + "/"
+                + repo + "/issues" + id + "/comments"), new TypeToken<List<String>>(){});
+    }
+
+    // get issues by milestone (by id)
+    public static List<Note> getNotes(String repo, int milestone) throws GithubException {
+        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/" + user.name + "/"
+                + repo + "/issues" + "?milestone=" + milestone), NOTES_TYPE_TOKEN);
+    }
+
+    // get issues by repo
+    public static List<Note> getNotes(String repo) throws GithubException {
+        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/" + user.name + "/"
+                + repo + "/issues"), NOTES_TYPE_TOKEN);
+    }
+
     /*--------------------------------------------------------------------------------------------------
      * Repo
     --------------------------------------------------------------------------------------------------*/
     // request all user repo
     public static List<Repo> getRepos(int page) throws GithubException {
         return parseResponse(makeGetRequest(REPO_ENDPOINT + "?page=" + page), REPOS_TYPE_TOKEN);
+    }
+
+    /*--------------------------------------------------------------------------------------------------
+     * MileStone
+    --------------------------------------------------------------------------------------------------*/
+
+    public static List<MileStone> getMileStone(String repo) throws GithubException {
+        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/"
+                + user.name + "/" + repo + "/milesones"), MILESTONES_TYPE_TOKEN);
     }
 }

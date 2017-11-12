@@ -2,6 +2,7 @@ package com.project.cse5326.gitnote;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,9 +25,11 @@ public class RepoListFragment extends Fragment {
 
     private static final String ARG_REPOS = "repos";
 
-    private List<Repo> mRepos;
+    public static RepoAdapter adapter;
+    public static List<Repo> mRepos;
 
     private RecyclerView mRepoRecyclerView;
+    private FloatingActionButton mAddButton;
 
     public static RepoListFragment newInstance(List<Repo> repos){
         Bundle args = new Bundle();
@@ -42,7 +45,6 @@ public class RepoListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRepos = ModelUtils.toObject(getArguments().getString(ARG_REPOS), new TypeToken<List<Repo>>(){});
-//        setHasOptionsMenu(true);
     }
 
     @Override
@@ -51,9 +53,20 @@ public class RepoListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
         mRepoRecyclerView = view.findViewById(R.id.recycler_view);
         mRepoRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRepoRecyclerView.setAdapter(new RepoAdapter(mRepos));
+        adapter = new RepoAdapter(mRepos);
+        mRepoRecyclerView.setAdapter(adapter);
 
         getActivity().setTitle("All Repositories");
+
+        mAddButton = view.findViewById(R.id.add_button);
+        mAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAddButton.show();
+                Intent intent = AddRepoActivity.newIntent(getActivity());
+                startActivity(intent);
+            }
+        });
 
         return view;
     }
@@ -105,6 +118,10 @@ public class RepoListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mRepos.size();
+        }
+
+        public void updateList(List<Repo> repos){
+
         }
     }
 

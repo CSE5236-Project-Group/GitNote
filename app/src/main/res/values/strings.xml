@@ -8,6 +8,11 @@
     <string name="close_drawer">close drawer</string>
     <string name="new_note">New Note</string>
     <string name="edit_note">Edit Note</string>
+    <string name="take_photo">Take a photo</string>
+    <string name="confirm_changes">Confirm</string>
     <string name="note_title_label">Title</string>
     <string name="note_body_label">Note Content</string>
+    <string name="ms_title_label">MileStone Title</string>
+    <string name="repo_name_label">Repository Name</string>
+
 </resources>

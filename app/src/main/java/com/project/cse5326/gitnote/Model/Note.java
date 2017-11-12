@@ -2,8 +2,6 @@ package com.project.cse5326.gitnote.Model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Date;
-
 /**
  * Created by sifang.
  */
@@ -12,31 +10,32 @@ public class Note {
 
     @SerializedName("number")
     private int number;
-    @SerializedName("update_at")
-    private String update_at;
+    @SerializedName("updated_at")
+    private String updated_at;
     @SerializedName("title")
     private String title;
     @SerializedName("body")
     private String body;
-    @SerializedName("comment")
-    private String comment;
-//    private Label label;
+    @SerializedName("repository")
+    private Repo repository;
+    @SerializedName("milestone")
+    private MileStone mileStone;
 
-    public String getComment() {
-        return comment;
+    public MileStone getMileStone() {
+        return mileStone;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setMileStone(MileStone mileStone) {
+        this.mileStone = mileStone;
     }
 
-//    public Label getLabel() {
-//        return label;
-//    }
-//
-//    public void setLabel(Label label) {
-//        this.label = label;
-//    }
+    public Repo getRepository() {
+        return repository;
+    }
+
+    public void setRepository(Repo repository) {
+        this.repository = repository;
+    }
 
     public Note(){}
 
@@ -48,12 +47,12 @@ public class Note {
         this.number = number;
     }
 
-    public String getUpdate_at() {
-        return update_at;
+    public String getUpdated_at() {
+        return updated_at;
     }
 
-    public void setUpdate_at(String update_at) {
-        this.update_at = update_at;
+    public void setUpdated_at(String updated_at) {
+        this.updated_at = updated_at;
     }
 
     public String getTitle() {

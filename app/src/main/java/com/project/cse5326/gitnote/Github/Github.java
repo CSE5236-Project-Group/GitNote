@@ -8,15 +8,21 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Model.Comment;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Model.User;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 
+import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -63,6 +69,8 @@ public class Github {
 
     // HTTP client
     private static OkHttpClient client = new OkHttpClient();
+
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     /*----------------------------------------------------------------------------------------------
      * HTTP Request
@@ -205,9 +213,9 @@ public class Github {
     }
 
     // get issue comment
-    public static List<String> getNoteComment(String repo, int id) throws GithubException {
-        return parseResponse(makeGetRequest(REPO_ENDPOINT + "/" + user.name + "/"
-                + repo + "/issues" + id + "/comments"), new TypeToken<List<String>>(){});
+    public static List<Comment> getNoteComment(String repo, int id) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
+                + repo + "/issues/" + id + "/comments"), new TypeToken<List<Comment>>(){});
     }
 
     // get issues by milestone (by number)
@@ -222,12 +230,78 @@ public class Github {
                 + repo + "/issues"), NOTES_TYPE_TOKEN);
     }
 
+    public static Response addNote(@NonNull String repo, @NonNull String title, String body, int milestone)
+            throws IOException, JSONException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title", title);
+        jsonObject.put("body", body);
+        jsonObject.put("milestone", milestone);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
+
+
+        // post issue by repo
+    public static Response addNote(@NonNull String repo, @NonNull String title, String body)
+            throws JSONException, IOException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title", title);
+        jsonObject.put("body", body);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
+
     /*--------------------------------------------------------------------------------------------------
      * Repo
     --------------------------------------------------------------------------------------------------*/
     // request all user repo
     public static List<Repo> getRepos(int page) throws GithubException {
         return parseResponse(makeGetRequest(REPO_ENDPOINT + "?page=" + page), REPOS_TYPE_TOKEN);
+    }
+
+    public static Repo getRepo(String repo) throws  GithubException {
+        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
+                + repo), REPO_TYPE_TOKEN);
+    }
+
+    public static Response addRepo(@NonNull String name)
+            throws JSONException, IOException {
+        String url = REPO_ENDPOINT;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", name);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
     }
 
     /*--------------------------------------------------------------------------------------------------
@@ -238,4 +312,23 @@ public class Github {
         return parseResponse(makeGetRequest(MILESTONE_ENDPOINT + "/"
                 + user.login + "/" + repo + "/milestones"), MILESTONES_TYPE_TOKEN);
     }
+
+    public static Response addMileStone(@NonNull String repo, @NonNull String title)
+            throws JSONException, IOException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/milestones";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title", title);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
 }

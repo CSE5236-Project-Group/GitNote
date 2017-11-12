@@ -11,6 +11,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
@@ -82,6 +84,16 @@ public class RepoShowActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
+    }
+
     class ViewPagerAdapter extends FragmentPagerAdapter{
 
         private String mTitle[] = {"All Notes", "MileStones"};
@@ -99,7 +111,7 @@ public class RepoShowActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position){
                 case 0:
-                    return NoteListFragment.newInstance(mNotes);
+                    return NoteListRepoFragment.newInstance(mNotes, mRepo.getName());
                 case 1:
                     return MileStoneListFragment.newInstance(mMileStones, mRepo.getName());
             }
@@ -114,46 +126,6 @@ public class RepoShowActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return mTitle[position];
-        }
-    }
-
-    public class FetchRepoAllNotes extends AsyncTask<String, String, List<Note>>{
-
-        String mRepoName;
-
-        public FetchRepoAllNotes(String repoName){
-            mRepoName = repoName;
-        }
-
-        @Override
-        protected List<Note> doInBackground(String... strings) {
-            List<Note> notes = null;
-            try {
-                notes = Github.getNotes(mRepoName);
-            } catch (GithubException e) {
-                e.printStackTrace();
-            }
-            return notes;
-        }
-    }
-
-    public class FetchRepoMileStones extends AsyncTask<String, String, List<MileStone>> {
-
-        String mRepoName;
-
-        public FetchRepoMileStones(String repoName) {
-            mRepoName = repoName;
-        }
-
-        @Override
-        protected List<MileStone> doInBackground(String... strings) {
-            List<MileStone> mileStones = null;
-            try {
-                mileStones = Github.getMileStone(mRepoName);
-            } catch (GithubException e) {
-                e.printStackTrace();
-            }
-            return mileStones;
         }
     }
 }

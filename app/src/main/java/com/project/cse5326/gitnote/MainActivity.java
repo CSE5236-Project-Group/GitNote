@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class FetchAllRepos extends AsyncTask<String, String, String> {
+    private class FetchAllRepos extends AsyncTask<String, String, String> {
 
         List<Repo> mRepos;
 
@@ -171,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if(fragment == null){
-            fragment = NoteListFragment.newInstance(notes);
+            fragment = NoteListMainFragment.newInstance(notes);
             fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
         }
     }

@@ -3,6 +3,7 @@ package com.project.cse5326.gitnote;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Repo;
@@ -23,7 +24,6 @@ public class RepoListShowActivity extends SingleFragmentActivity {
         intent.putExtra(EXTRA_REPOS, ModelUtils.toString(repos, new TypeToken<List<Repo>>(){}));
         return intent;
     }
-
 
     @Override
     protected Fragment createFragment() {

@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName;
 public class User {
     @SerializedName("login")
     public String login;
-    @SerializedName("title")
+    @SerializedName("name")
     public String name;
     @SerializedName("avatar_url")
     public String avatar_url;

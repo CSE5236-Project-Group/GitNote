@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
@@ -46,7 +48,6 @@ public class NoteContentFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mNote = ModelUtils.toObject(getArguments().getString(ARG_NOTE), new TypeToken<Note>(){});
-
         setHasOptionsMenu(true);
     }
 
@@ -64,6 +65,7 @@ public class NoteContentFragment extends Fragment {
         mNoteBody = view.findViewById(R.id.show_note_body);
 
         getActivity().setTitle(mNote.getTitle());
+
         mNoteTitle.setText(mNote.getTitle());
         mNoteBody.loadMarkdown(mNote.getBody());
 
@@ -72,11 +74,12 @@ public class NoteContentFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.fragment_note_show, menu);
+        inflater.inflate(R.menu.edit, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
+        Log.i("button", "hi");
         switch (item.getItemId()){
             case R.id.edit_note:
                 Intent intent = NoteEditActivity.newIntent(getActivity(), mNote);

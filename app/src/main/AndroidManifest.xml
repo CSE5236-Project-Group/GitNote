@@ -20,16 +20,17 @@
         </activity>
         <activity android:name=".Github.Auth.AuthActivity" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".NoteShowActivity"
-            android:parentActivityName=".MainActivity"/>
-        <activity android:name=".NoteEditActivity"
-            android:parentActivityName=".NoteShowActivity"/>
+        <activity android:name=".NoteShowMainActivity" />
+        <activity android:name=".NoteShowActivity" />
+        <activity android:name=".NoteEditActivity" />
         <activity android:name=".RepoListShowActivity"
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".RepoShowActivity"
-            android:parentActivityName=".RepoListShowActivity"/>
-        <activity android:name=".MileStoneNoteListActivity"
-            android:parentActivityName=".RepoShowActivity"/>
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".MileStoneNoteListActivity" />
+        <activity android:name=".AddNoteActivity"/>
+        <activity android:name=".AddMileStoneActivity"/>
+        <activity android:name=".AddRepoActivity"/>
     </application>
 
 </manifest>

@@ -3,6 +3,7 @@ package com.project.cse5326.gitnote;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
@@ -26,5 +27,15 @@ public class NoteEditActivity extends SingleFragmentActivity {
     protected Fragment createFragment() {
         Note note = ModelUtils.toObject(getIntent().getStringExtra(EXTRA_NOTE), new TypeToken<Note>(){});
         return NoteEditFragment.newInstance(note);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
     }
 }

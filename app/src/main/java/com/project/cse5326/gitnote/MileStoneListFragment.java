@@ -3,6 +3,7 @@ package com.project.cse5326.gitnote;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,6 +35,7 @@ public class MileStoneListFragment extends Fragment {
     private List<MileStone> mMileStones;
     private String mRepoName;
     private RecyclerView mRecyclerView;
+    private FloatingActionButton mAddButton;
 
     public static MileStoneListFragment newInstance(List<MileStone> mileStones, String repoName) {
         Bundle args = new Bundle();
@@ -50,7 +52,6 @@ public class MileStoneListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i("MileStones",getArguments().getString(ARG_MILESTONES));
         mMileStones = ModelUtils.toObject(getArguments().getString(ARG_MILESTONES), new TypeToken<List<MileStone>>() {
         });
         mRepoName = getArguments().getString(ARG_REPO);
@@ -64,6 +65,16 @@ public class MileStoneListFragment extends Fragment {
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setAdapter(new MileStoneAdapter(mMileStones));
+
+        mAddButton = view.findViewById(R.id.add_button);
+        mAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAddButton.show();
+                Intent intent = AddMileStoneActivity.newIntent(getActivity(), mRepoName);
+                startActivity(intent);
+            }
+        });
 
         return view;
     }
@@ -97,7 +108,7 @@ public class MileStoneListFragment extends Fragment {
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            Intent intent = MileStoneNoteListActivity.newIntent(getActivity(),notes);
+            Intent intent = MileStoneNoteListActivity.newIntent(getActivity(),notes,mRepoName, mMileStone);
             startActivity(intent);
         }
     }
@@ -124,28 +135,6 @@ public class MileStoneListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mMileStones.size();
-        }
-    }
-
-    public class FetchMileStoneNotes extends AsyncTask<String, String, List<Note>> {
-
-        private int mMileStoneId;
-        private String mRepoName;
-
-        public FetchMileStoneNotes(int mileStoneId, String repoName){
-            mMileStoneId = mileStoneId;
-            mRepoName = repoName;
-        }
-
-        @Override
-        protected List<Note> doInBackground(String... strings) {
-            List<Note> notes = null;
-            try {
-                notes = Github.getNotes(mRepoName,mMileStoneId);
-            } catch (GithubException e) {
-                e.printStackTrace();
-            }
-            return notes;
         }
     }
 }

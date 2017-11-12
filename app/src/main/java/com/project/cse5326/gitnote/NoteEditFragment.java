@@ -57,7 +57,7 @@ public class NoteEditFragment extends Fragment {
     private static final String CAMERA_DIR = "/dcim/";
 
     private FirebaseStorage storage = FirebaseStorage.
-            getInstance("gs://gitnote-4706.appspot.com/gitnote_image");
+            getInstance("gs://gitnote-4706.appspot.com");
     private StorageReference storageRef = storage.getReference();
     private StorageReference imageRef;
 
@@ -84,13 +84,15 @@ public class NoteEditFragment extends Fragment {
             e.printStackTrace();
         }
 
+        setHasOptionsMenu(true);
+
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            galleryAddPic();
+            //galleryAddPic();
             Uri file = Uri.fromFile(photoFile);
             UploadTask uploadTask = imageRef.putFile(file);
 

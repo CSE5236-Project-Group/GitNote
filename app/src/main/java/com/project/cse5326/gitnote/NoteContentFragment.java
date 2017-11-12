@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +33,8 @@ public class NoteContentFragment extends Fragment {
     private Note mNote;
     private TextView mNoteTitle;
     private MarkdownView mNoteBody;
+
+    private Button mButton;
 
 
     public static NoteContentFragment newInstance(Note note){
@@ -68,6 +71,15 @@ public class NoteContentFragment extends Fragment {
 
         mNoteTitle.setText(mNote.getTitle());
         mNoteBody.loadMarkdown(mNote.getBody());
+
+        mButton = view.findViewById(R.id.camera);
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = NoteEditActivity.newIntent(getActivity(), mNote);
+                startActivity(intent);
+            }
+        });
 
     }
 

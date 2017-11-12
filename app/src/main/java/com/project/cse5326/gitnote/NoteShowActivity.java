@@ -40,8 +40,6 @@ public class NoteShowActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
-
-
     public static Intent newIntent(Context packageContext, Note note, String noteRepoName){
         Intent intent = new Intent(packageContext, NoteShowActivity.class);
         intent.putExtra(EXTRA_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
@@ -61,6 +59,7 @@ public class NoteShowActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
+
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), mNote);
         mViewPager.setAdapter(adapter);
@@ -78,15 +77,15 @@ public class NoteShowActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case android.R.id.home:
+//                finish();
+//                break;
+//        }
+//        return true;
+//    }
 
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

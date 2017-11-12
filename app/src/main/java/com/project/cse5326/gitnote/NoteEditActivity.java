@@ -29,13 +29,13 @@ public class NoteEditActivity extends SingleFragmentActivity {
         return NoteEditFragment.newInstance(note);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case android.R.id.home:
+//                finish();
+//                break;
+//        }
+//        return true;
+//    }
 }

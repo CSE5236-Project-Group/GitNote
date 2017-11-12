@@ -1,0 +1,11 @@
+<android.support.design.widget.FloatingActionButton android:id="@+id/add_button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/space_medium"
+    android:clickable="true"
+    android:src="@drawable/ic_button_float_action"
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentEnd="true"
+    android:layout_alignParentRight="true"
+    android:layout_gravity="bottom|end"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

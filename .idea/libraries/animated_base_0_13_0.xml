@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="animated-base-0.13.0">
     <CLASSES>
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/animated-base-0.13.0.aar/b2ef52c5f73e26eace81e92f2e483e83/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/animated-base-0.13.0.aar/b2ef52c5f73e26eace81e92f2e483e83/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/animated-base-0.13.0.aar/9ed87acca30866741ea9a389397e2006/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/animated-base-0.13.0.aar/9ed87acca30866741ea9a389397e2006/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

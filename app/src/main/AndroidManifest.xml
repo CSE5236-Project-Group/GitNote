@@ -34,6 +34,7 @@
         <activity android:name=".AddNoteActivity"/>
         <activity android:name=".AddMileStoneActivity"/>
         <activity android:name=".AddRepoActivity"/>
+        <activity android:name=".AddCommentActivity"/>
     </application>
 
 </manifest>

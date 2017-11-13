@@ -37,8 +37,6 @@ public class NoteShowMainActivity extends AppCompatActivity {
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
 
-
-
     public static Intent newIntent(Context packageContext, Note note){
         Intent intent = new Intent(packageContext, NoteShowMainActivity.class);
         intent.putExtra(EXTRA_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
@@ -65,7 +63,7 @@ public class NoteShowMainActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mViewPager);
 
         try {
-            mComments = new FetchComments(mNote.getNumber(),mNote.getRepository().getName()).execute().get();
+            mComments = new FetchNoteComments(mNote.getNumber(),mNote.getRepository().getName()).execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -90,7 +88,7 @@ public class NoteShowMainActivity extends AppCompatActivity {
             if (position == 0){
                 return NoteContentFragment.newInstance(mNote, mNote.getRepository().getName());
             }else if(position == 1){
-                return NoteCommentFragment.newInstance(mComments);
+                return NoteCommentFragment.newInstance(mComments, mNote.getRepository().getName(), mNote);
             }
             return null;
         }
@@ -105,28 +103,5 @@ public class NoteShowMainActivity extends AppCompatActivity {
             return mTitle[position];
         }
     }
-
-    public class FetchComments extends AsyncTask<String, String, List<Comment>> {
-
-        private String mRepoName;
-        private int mNoteId;
-
-        public FetchComments(int noteId, String repoName){
-            mNoteId = noteId;
-            mRepoName = repoName;
-        }
-
-        @Override
-        protected List<Comment> doInBackground(String... strings) {
-            List<Comment> comments = null;
-            try {
-                comments = Github.getNoteComment(mRepoName,mNoteId);
-            } catch (GithubException e) {
-                e.printStackTrace();
-            }
-            return comments;
-        }
-    }
-
 
 }

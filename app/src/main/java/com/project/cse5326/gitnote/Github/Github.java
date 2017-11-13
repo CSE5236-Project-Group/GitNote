@@ -351,4 +351,25 @@ public class Github {
         return client.newCall(request).execute();
     }
 
+    /*--------------------------------------------------------------------------------------------------
+     * Comment
+    --------------------------------------------------------------------------------------------------*/
+    public static Response addComment(@NonNull String repo, @NonNull int noteNum, @NonNull String body)
+            throws JSONException, IOException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues/" + noteNum + "/comments";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("body", body);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
 }

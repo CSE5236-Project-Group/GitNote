@@ -183,11 +183,15 @@ public class NoteEditFragment extends Fragment {
                 if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
                         != PackageManager.PERMISSION_GRANTED) {
                     requestPermissions(new String[]{Manifest.permission.CAMERA}, 5);
-                }
-                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+                } else {
+                    invokeCamera();
                 }
-                invokeCamera();
+
+//                if (permission == 999) {
+//                    invokeCamera();
+//                }
             }
         });
 
@@ -314,8 +318,7 @@ public class NoteEditFragment extends Fragment {
         if (requestCode == 5) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Now user should be able to use camera
-                permission = 1;
-
+                permission = 999;
             } else {
                 // Your app will not have this permission. Turn off all functions
                 // that require this permission or it will force close like your

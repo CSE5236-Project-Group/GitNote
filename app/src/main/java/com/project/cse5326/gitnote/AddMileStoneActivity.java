@@ -13,13 +13,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Repo;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import okhttp3.Response;
@@ -84,22 +87,10 @@ public class AddMileStoneActivity extends AppCompatActivity {
                 }
                 return true;
             case android.R.id.home:
-                updateMileStone();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    public void updateMileStone(){
-        try {
-            Repo repo = new FetchRepo(mRepoName).execute().get();
-            Intent intent = RepoShowActivity.newIntent(this, repo);
-            startActivity(intent);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         }
     }
 
@@ -134,14 +125,27 @@ public class AddMileStoneActivity extends AppCompatActivity {
             super.onPostExecute(s);
             if(responseOk){
                 Toast.makeText(AddMileStoneActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
-                updateMileStone();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("UPDATED_MSS", ModelUtils.toString(updatedMileStones(), new TypeToken<List<MileStone>>(){}));
+                setResult(RESULT_OK,returnIntent);
+                finish();
             }else{
                 Toast.makeText(AddMileStoneActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
         }
     }
 
-
+    public List<MileStone>  updatedMileStones(){
+        List<MileStone> milestones = null;
+        try {
+            milestones = new FetchRepoMileStones(mRepoName).execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return milestones;
+    }
 
 
 

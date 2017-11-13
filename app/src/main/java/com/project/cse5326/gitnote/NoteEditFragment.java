@@ -1,11 +1,14 @@
 package com.project.cse5326.gitnote;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,13 +28,18 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import okhttp3.Response;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -42,10 +50,13 @@ import static android.app.Activity.RESULT_OK;
 public class NoteEditFragment extends Fragment {
 
     private static final String ARG_NOTE = "note";
+    private static final String ARG_REPO_NAME = "repo_name";
 
     private Note mNote;
+    private String mRepoName;
     private EditText mNoteTitle;
     private EditText mNoteBody;
+    private FloatingActionButton mButtonPhoto;
 
 
     private File photoFile;
@@ -63,9 +74,10 @@ public class NoteEditFragment extends Fragment {
 
     private String downloadUri;
 
-    public static NoteEditFragment newInstance(Note note){
+    public static NoteEditFragment newInstance(Note note, String repoName){
         Bundle args = new Bundle();
         args.putString(ARG_NOTE, ModelUtils.toString(note, new TypeToken<Note>(){}));
+        args.putString(ARG_REPO_NAME, repoName);
 
         NoteEditFragment fragment = new NoteEditFragment();
         fragment.setArguments(args);
@@ -78,6 +90,7 @@ public class NoteEditFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mNote = ModelUtils.toObject(getArguments().getString(ARG_NOTE), new TypeToken<Note>(){});
+        mRepoName = ModelUtils.toObject(getArguments().getString(ARG_REPO_NAME), new TypeToken<String>(){});
         try {
             photoFile = createFile();
         } catch (IOException e) {
@@ -86,6 +99,59 @@ public class NoteEditFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             final Bundle savedInstanceState){
+        View view = inflater.inflate(R.layout.fragment_note_edit, container, false);
+        mNoteTitle = view.findViewById(R.id.edit_note_title);
+        mNoteBody = view.findViewById(R.id.edit_note_body);
+
+        getActivity().setTitle(mNote.getTitle());
+
+        mNoteTitle.setText(mNote.getTitle());
+        mNoteTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mNote.setTitle(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        mNoteBody.setText(mNote.getBody());
+        mNoteBody.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mNote.setBody(s.toString());
+                mNote.setBody(s.toString() + downloadUri);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        mButtonPhoto = view.findViewById(R.id.camera_button);
+        mButtonPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mButtonPhoto.show();
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        });
+
+        return view;
     }
 
     @Override
@@ -164,63 +230,70 @@ public class NoteEditFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             final Bundle savedInstanceState){
-        View view = inflater.inflate(R.layout.fragment_note_edit, container, false);
-        mNoteTitle = view.findViewById(R.id.edit_note_title);
-        mNoteBody = view.findViewById(R.id.edit_note_body);
-
-        getActivity().setTitle(mNote.getTitle());
-
-        mNoteTitle.setText(mNote.getTitle());
-        mNoteTitle.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mNote.setTitle(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        mNoteBody.setText(mNote.getBody());
-        mNoteBody.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mNote.setBody(s.toString());
-                mNote.setBody(s.toString() + downloadUri);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        return view;
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.take_photo, menu);
+        inflater.inflate(R.menu.confirm, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
-            case R.id.take_photo:
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            case R.id.confirm:
+                if(mNote.getTitle().equals("")){
+                    Toast.makeText(getActivity(), "Note title can not be empty", Toast.LENGTH_LONG).show();
+                }else{
+                    new NoteEditFragment.PatchEditedNote(mNote, mRepoName).execute();
+                }
+                return true;
+            case android.R.id.home:
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("EDITED_NOTE",ModelUtils.toString(mNote, new TypeToken<Note>(){}));
+                getActivity().setResult(Activity.RESULT_OK,returnIntent);
+                getActivity().finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public class PatchEditedNote extends AsyncTask<String, String, String> {
+
+        private Note mNote;
+        private String mRepoName;
+        private boolean responseOk;
+        private String responseMessage;
+
+        public PatchEditedNote(Note note, String repoName){
+            mNote = note;
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                Response response = Github.patchNote(mRepoName, mNote.getTitle(), mNote.getBody(), mNote.getNumber());
+                responseOk = response.isSuccessful();
+                responseMessage = response.message();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            super.onPostExecute(s);
+            if(responseOk){
+                Toast.makeText(getActivity(), "Successfully Modified", Toast.LENGTH_LONG).show();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("EDITED_NOTE",ModelUtils.toString(mNote, new TypeToken<Note>(){}));
+                getActivity().setResult(Activity.RESULT_OK,returnIntent);
+                getActivity().finish();
+            }else{
+                Toast.makeText(getActivity(), responseMessage, Toast.LENGTH_LONG).show();
+            }
         }
     }
 

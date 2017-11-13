@@ -17,6 +17,8 @@ import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by sifang
  */
@@ -24,10 +26,10 @@ import java.util.List;
 public class NoteListMainFragment extends Fragment{
 
     private static final String ARG_NOTES = "notes";
-    private static final int previewLength = 20;
+    private static final int REQUEST = 0;
 
-    private List<Note> mNotes;
-    private String mRepoName;
+    public static List<Note> mNotes;
+    public NoteAdapter mAdapter;
     private RecyclerView mNoteRecyclerView;
 
     public static NoteListMainFragment newInstance(List<Note> notes){
@@ -44,7 +46,6 @@ public class NoteListMainFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mNotes = ModelUtils.toObject(getArguments().getString(ARG_NOTES), new TypeToken<List<Note>>(){});
-//        setHasOptionsMenu(true);
 
     }
 
@@ -56,28 +57,21 @@ public class NoteListMainFragment extends Fragment{
 
         mNoteRecyclerView = view.findViewById(R.id.recycler_view);
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mNoteRecyclerView.setAdapter(new NoteAdapter(mNotes));
+        mAdapter = new NoteAdapter(mNotes);
+        mNoteRecyclerView.setAdapter(mAdapter);
         return view;
     }
 
-
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-//        super.onCreateOptionsMenu(menu, inflater);
-//        inflater.inflate(R.menu.fragment_note_list, menu);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item){
-//        switch (item.getItemId()){
-//            case R.id.new_note:
-//                Note note = new Note();
-//
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
+                mNotes.add(note);
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+    }
 
 
     public class NoteHolder extends RecyclerView.ViewHolder
@@ -86,14 +80,12 @@ public class NoteListMainFragment extends Fragment{
         private Note mNote;
         private TextView mNoteTitle;
         private TextView mNoteDate;
-        private TextView mNoteBodyPreview;
 
         public NoteHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_note, parent, false));
 
             mNoteTitle = itemView.findViewById(R.id.note_title);
             mNoteDate = itemView.findViewById(R.id.note_date);
-            mNoteBodyPreview = itemView.findViewById(R.id.note_body_preview);
 
             itemView.setOnClickListener(this);
         }
@@ -102,13 +94,13 @@ public class NoteListMainFragment extends Fragment{
             mNote = note;
             mNoteTitle.setText(note.getTitle());
             mNoteDate.setText(note.getUpdated_at());
-            mNoteBodyPreview.setText(note.getBody());
         }
 
         @Override
         public void onClick(View v) {
+            NoteListMainFragment.mNotes.remove(mNote);
             Intent intent = NoteShowMainActivity.newIntent(getActivity(),mNote);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST);
         }
     }
 
@@ -119,7 +111,6 @@ public class NoteListMainFragment extends Fragment{
         public NoteAdapter(List<Note> notes){
             this.mNotes = notes;
         }
-
 
         @Override
         public NoteHolder onCreateViewHolder(ViewGroup parent, int viewType) {

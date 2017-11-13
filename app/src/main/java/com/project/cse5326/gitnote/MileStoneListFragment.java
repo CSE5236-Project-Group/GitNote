@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,10 +19,13 @@ import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
+import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Created by sifang.
@@ -31,11 +35,13 @@ public class MileStoneListFragment extends Fragment {
 
     private static final String ARG_MILESTONES = "milestones";
     private static final String ARG_REPO = "repo";
+    private static int REQUEST = 0;
 
     private List<MileStone> mMileStones;
     private String mRepoName;
     private RecyclerView mRecyclerView;
     private FloatingActionButton mAddButton;
+    public static MileStoneAdapter adapter;
 
     public static MileStoneListFragment newInstance(List<MileStone> mileStones, String repoName) {
         Bundle args = new Bundle();
@@ -64,7 +70,8 @@ public class MileStoneListFragment extends Fragment {
 
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.setAdapter(new MileStoneAdapter(mMileStones));
+        adapter = new MileStoneAdapter(mMileStones);
+        mRecyclerView.setAdapter(adapter);
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {
@@ -72,12 +79,25 @@ public class MileStoneListFragment extends Fragment {
             public void onClick(View v) {
                 mAddButton.show();
                 Intent intent = AddMileStoneActivity.newIntent(getActivity(), mRepoName);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST);
             }
         });
 
         return view;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST) {
+            if (resultCode == RESULT_OK) {
+                List<MileStone> mileStones = ModelUtils.toObject(data.getStringExtra("UPDATED_MSS"), new TypeToken<List<MileStone>>(){});
+                mMileStones.clear();
+                mMileStones.addAll(mileStones);
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
 
     public class MileStoneHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {

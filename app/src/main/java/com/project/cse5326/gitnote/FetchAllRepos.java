@@ -19,7 +19,7 @@ public class FetchAllRepos extends AsyncTask<String, String, List<Repo>> {
     @Override
     protected List<Repo> doInBackground(String... strings) {
         try {
-            mRepos = Github.getRepos(1);
+            mRepos = Github.getRepos();
         } catch (GithubException e) {
             e.printStackTrace();
         }

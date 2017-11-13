@@ -29,8 +29,7 @@
         <activity android:name=".NoteEditActivity" />
         <activity android:name=".RepoListShowActivity"
             android:parentActivityName=".MainActivity"/>
-        <activity android:name=".RepoShowActivity"
-            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".RepoShowActivity" />
         <activity android:name=".MileStoneNoteListActivity" />
         <activity android:name=".AddNoteActivity"/>
         <activity android:name=".AddMileStoneActivity"/>

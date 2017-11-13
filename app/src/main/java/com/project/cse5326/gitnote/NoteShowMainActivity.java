@@ -71,18 +71,9 @@ public class NoteShowMainActivity extends AppCompatActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                break;
-        }
-        return true;
-    }
+
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
 
@@ -97,7 +88,7 @@ public class NoteShowMainActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0){
-                return NoteContentFragment.newInstance(mNote);
+                return NoteContentFragment.newInstance(mNote, mNote.getRepository().getName());
             }else if(position == 1){
                 return NoteCommentFragment.newInstance(mComments);
             }

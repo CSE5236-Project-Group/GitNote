@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -17,6 +18,8 @@ import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by sifang
  */
@@ -25,9 +28,11 @@ public class NoteListRepoFragment extends Fragment{
 
     private static final String ARG_NOTES = "notes";
     private static final String ARG_REPO_NAME = "repo_name";
-    private static final int previewLength = 20;
+    private static final int REQUEST_SHOW = 0;
+    private static final int REQUEST_ADD = 1;
 
-    private List<Note> mNotes;
+    private static List<Note> mNotes;
+    public NoteAdapter mAdapter;
     private String mRepoName;
 
     private RecyclerView mNoteRecyclerView;
@@ -60,18 +65,37 @@ public class NoteListRepoFragment extends Fragment{
 
         mNoteRecyclerView = view.findViewById(R.id.recycler_view);
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mNoteRecyclerView.setAdapter(new NoteAdapter(mNotes, mRepoName));
+        mAdapter = new NoteAdapter(mNotes, mRepoName);
+        mNoteRecyclerView.setAdapter(mAdapter);
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentRepo = AddNoteActivity.newIntent(getActivity(), mRepoName, "RepoShowActivity");
-                startActivity(intentRepo);
+                startActivityForResult(intentRepo, REQUEST_ADD);
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_SHOW) {
+            if (resultCode == RESULT_OK) {
+                Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
+                mNotes.add(note);
+                mAdapter.notifyDataSetChanged();
+            }
+        }else if(requestCode == REQUEST_ADD){
+            if(resultCode == RESULT_OK){
+                List<Note> notes = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<List<Note>>(){});
+                mNotes.clear();
+                mNotes.addAll(notes);
+                mAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     public class NoteHolder extends RecyclerView.ViewHolder
@@ -81,14 +105,12 @@ public class NoteListRepoFragment extends Fragment{
         private String mRepoName;
         private TextView mNoteTitle;
         private TextView mNoteDate;
-        private TextView mNoteBodyPreview;
 
         public NoteHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_note, parent, false));
 
             mNoteTitle = itemView.findViewById(R.id.note_title);
             mNoteDate = itemView.findViewById(R.id.note_date);
-            mNoteBodyPreview = itemView.findViewById(R.id.note_body_preview);
 
             itemView.setOnClickListener(this);
         }
@@ -98,13 +120,13 @@ public class NoteListRepoFragment extends Fragment{
             mRepoName = repoName;
             mNoteTitle.setText(note.getTitle());
             mNoteDate.setText(note.getUpdated_at());
-            mNoteBodyPreview.setText(note.getBody());
         }
 
         @Override
         public void onClick(View v) {
+            NoteListRepoFragment.mNotes.remove(mNote);
             Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
-            startActivity(intent);
+            startActivityForResult(intent,REQUEST_SHOW);
         }
     }
 

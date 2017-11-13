@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             try {
-                mRepos = Github.getRepos(1);
+                mRepos = Github.getRepos();
             } catch (GithubException e) {
                 e.printStackTrace();
             }

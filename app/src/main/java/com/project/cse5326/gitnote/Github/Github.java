@@ -35,7 +35,7 @@ public class Github {
     // Request url
     private static final String API_URL = "https://api.github.com";
     private static final String USER_ENDPOINT = API_URL + "/user";
-    private static final String USERS_ENDPOINT = API_URL + "users";
+    private static final String USERS_ENDPOINT = API_URL + "/users";
 
     // Request note url
     private static final String NOTES_ENDPOINT = USER_ENDPOINT + "/issues";
@@ -230,6 +230,26 @@ public class Github {
                 + repo + "/issues"), NOTES_TYPE_TOKEN);
     }
 
+    // patch issue
+    public static Response patchNote(@NonNull String repo, @NonNull String title, String body, int repoNum)
+            throws IOException, JSONException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues/" + repoNum;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title", title);
+        jsonObject.put("body", body);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .patch(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
     public static Response addNote(@NonNull String repo, @NonNull String title, String body, int milestone)
             throws IOException, JSONException {
         String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues";
@@ -277,8 +297,8 @@ public class Github {
      * Repo
     --------------------------------------------------------------------------------------------------*/
     // request all user repo
-    public static List<Repo> getRepos(int page) throws GithubException {
-        return parseResponse(makeGetRequest(REPO_ENDPOINT + "?page=" + page), REPOS_TYPE_TOKEN);
+    public static List<Repo> getRepos() throws GithubException {
+        return parseResponse(makeGetRequest(USERS_ENDPOINT + "/" + user.login + "/repos"), REPOS_TYPE_TOKEN);
     }
 
     public static Repo getRepo(String repo) throws  GithubException {

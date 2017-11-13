@@ -39,7 +39,7 @@ public class Auth {
     private static final String CLIENT_SECRET = "f372723f959a6fec832ffcd0ea93c99d19edebdd";
 
     // scope: user & gist & repo
-    private static final String SCOPE = "user%20repo%20gist";
+    private static final String SCOPE = "user%20repo%20gist%20delete_repo";
 
     // url
     private static final String URI_AUTHORIZE = "https://github.com/login/oauth/authorize"; //GET

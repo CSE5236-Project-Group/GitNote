@@ -14,5 +14,6 @@
     <string name="note_body_label">Note Content</string>
     <string name="ms_title_label">MileStone Title</string>
     <string name="repo_name_label">Repository Name</string>
+    <string name="comment_body">Comment Body</string>
 
 </resources>

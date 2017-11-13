@@ -15,8 +15,8 @@ import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Model.Comment;
 import com.project.cse5326.gitnote.Model.MileStone;
-import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import org.json.JSONException;
@@ -31,17 +31,21 @@ import okhttp3.Response;
  * Created by sifang
  */
 
-public class AddMileStoneActivity extends AppCompatActivity {
+public class AddCommentActivity extends AppCompatActivity {
 
-    public static final String EXTRA_REPO_NAME = "com.project.cse5235.gitnote.add_ms.repo_name";
+    public static final String EXTRA_REPO_NAME = "com.project.cse5235.gitnote.add_c.repo_name";
+    public static final String EXTRA_NOTE_NUM = "com.project.cse5235.gitnote.add_c.note_num";
 
-    private MileStone mMileStone;
+    private Comment mComment;
     private String mRepoName;
+    private int mNoteNum;
+
     private Toolbar mToolbarAdd;
 
-    public static Intent newIntent(Context packageContext, String repoName){
-        Intent intent = new Intent(packageContext, AddMileStoneActivity.class);
+    public static Intent newIntent(Context packageContext, String repoName, int noteNum){
+        Intent intent = new Intent(packageContext, AddCommentActivity.class);
         intent.putExtra(EXTRA_REPO_NAME, repoName);
+        intent.putExtra(EXTRA_NOTE_NUM, noteNum);
         return intent;
     }
 
@@ -50,8 +54,9 @@ public class AddMileStoneActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
 
-        mMileStone = new MileStone();
+        mComment = new Comment();
         mRepoName = getIntent().getStringExtra(EXTRA_REPO_NAME);
+        mNoteNum = getIntent().getIntExtra(EXTRA_NOTE_NUM, 0);
 
         mToolbarAdd = findViewById(R.id.toolbar_add);
         setSupportActionBar(mToolbarAdd);
@@ -62,7 +67,7 @@ public class AddMileStoneActivity extends AppCompatActivity {
         Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
-            fragment = new AddMileStoneFragment();
+            fragment = new AddCommentFragment();
             fm.beginTransaction().add(R.id.fragment_container, fragment).commit();
         }
     }
@@ -79,11 +84,11 @@ public class AddMileStoneActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.confirm:
-                mMileStone = AddMileStoneFragment.getMileStone();
-                if(mMileStone.title.equals("")){
-                    Toast.makeText(AddMileStoneActivity.this, "MileStone title can not be empty", Toast.LENGTH_LONG).show();
+                mComment = AddCommentFragment.getComment();
+                if(mComment.body.equals("")){
+                    Toast.makeText(AddCommentActivity.this, "Comment body can not be empty", Toast.LENGTH_LONG).show();
                 }else{
-                    new AddMileStoneActivity.PostNewMileStone(mMileStone, mRepoName).execute();
+                    new AddCommentActivity.PostNewComment(mComment, mRepoName, mNoteNum).execute();
                 }
                 return true;
             case android.R.id.home:
@@ -94,22 +99,24 @@ public class AddMileStoneActivity extends AppCompatActivity {
         }
     }
 
-    public class PostNewMileStone extends AsyncTask<String, String, String> {
+    public class PostNewComment extends AsyncTask<String, String, String> {
 
-        private MileStone mMileStone;
+        private Comment mComment;
         private String mRepoName;
+        private int mNoteNum;
         private boolean responseOk;
         private String responseMessage;
 
-        public PostNewMileStone(MileStone mileStone, String repoName){
-            mMileStone = mileStone;
+        public PostNewComment(Comment comment, String repoName, int noteNum){
+            mComment = comment;
             mRepoName = repoName;
+            mNoteNum = noteNum;
         }
 
         @Override
         protected String doInBackground(String... strings) {
             try {
-                Response response = Github.addMileStone(mRepoName,mMileStone.title);
+                Response response = Github.addComment(mRepoName,mNoteNum,mComment.body);
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (JSONException e) {
@@ -124,30 +131,27 @@ public class AddMileStoneActivity extends AppCompatActivity {
         protected void onPostExecute(String s){
             super.onPostExecute(s);
             if(responseOk){
-                Toast.makeText(AddMileStoneActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
+                Toast.makeText(AddCommentActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("UPDATED_MSS", ModelUtils.toString(updatedMileStones(), new TypeToken<List<MileStone>>(){}));
+                returnIntent.putExtra("ADDED_COMMENT", ModelUtils.toString(updatedComments(), new TypeToken<List<Comment>>(){}));
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }else{
-                Toast.makeText(AddMileStoneActivity.this, responseMessage, Toast.LENGTH_LONG).show();
+                Toast.makeText(AddCommentActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public List<MileStone>  updatedMileStones(){
-        List<MileStone> milestones = null;
+    public List<Comment>  updatedComments(){
+        List<Comment> Comments = null;
         try {
-            milestones = new FetchRepoMileStones(mRepoName).execute().get();
+            Comments = new FetchNoteComments(mNoteNum, mRepoName).execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        return milestones;
+        return Comments;
     }
-
-
-
 
 }

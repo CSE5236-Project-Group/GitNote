@@ -35,11 +35,11 @@ public class Github {
     // Request url
     private static final String API_URL = "https://api.github.com";
     private static final String USER_ENDPOINT = API_URL + "/user";
-    private static final String USERS_ENDPOINT = API_URL + "users";
+    private static final String USERS_ENDPOINT = API_URL + "/users";
 
     // Request note url
     private static final String NOTES_ENDPOINT = USER_ENDPOINT + "/issues";
-    private static final String SCOPE_ALL = "filter=all&state=all&sort=updated&direction=desc";
+    private static final String SCOPE_ALL = "filter=all&state=open&sort=updated&direction=desc";
     private static final String NOTES_REPO_ENDPOINT = API_URL + "/repos";
 
     // Request milestone url
@@ -212,22 +212,36 @@ public class Github {
                 + '&' + SCOPE_ALL), NOTES_TYPE_TOKEN);
     }
 
-    // get issue comment
-    public static List<Comment> getNoteComment(String repo, int id) throws GithubException {
-        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
-                + repo + "/issues/" + id + "/comments"), new TypeToken<List<Comment>>(){});
-    }
-
     // get issues by milestone (by number)
     public static List<Note> getNotes(String repo, int milestone) throws GithubException {
         return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
-                + repo + "/issues" + "?milestone=" + milestone), NOTES_TYPE_TOKEN);
+                + repo + "/issues" + "?milestone=" + milestone + '&' + SCOPE_ALL), NOTES_TYPE_TOKEN);
     }
 
     // get issues by repo
     public static List<Note> getNotes(String repo) throws GithubException {
         return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
-                + repo + "/issues"), NOTES_TYPE_TOKEN);
+                + repo + "/issues"+ '?' + SCOPE_ALL), NOTES_TYPE_TOKEN);
+    }
+
+    // patch issue
+    public static Response patchNote(@NonNull String repo, @NonNull String title, String body, int repoNum)
+            throws IOException, JSONException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues/" + repoNum;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title", title);
+        jsonObject.put("body", body);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .patch(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
     }
 
     public static Response addNote(@NonNull String repo, @NonNull String title, String body, int milestone)
@@ -272,13 +286,30 @@ public class Github {
         return client.newCall(request).execute();
     }
 
+    public static Response closeNote(@NonNull String repo, @NonNull int noteNum) throws IOException, JSONException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues/" + noteNum;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("state", "close");
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .patch(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
 
     /*--------------------------------------------------------------------------------------------------
      * Repo
     --------------------------------------------------------------------------------------------------*/
     // request all user repo
-    public static List<Repo> getRepos(int page) throws GithubException {
-        return parseResponse(makeGetRequest(REPO_ENDPOINT + "?page=" + page), REPOS_TYPE_TOKEN);
+    public static List<Repo> getRepos() throws GithubException {
+        return parseResponse(makeGetRequest(USERS_ENDPOINT + "/" + user.login + "/repos"), REPOS_TYPE_TOKEN);
     }
 
     public static Repo getRepo(String repo) throws  GithubException {
@@ -304,6 +335,14 @@ public class Github {
         return client.newCall(request).execute();
     }
 
+    public static Response deleteRepo(@NonNull String repo) throws GithubException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo;
+        Request request = authRequestBuilder(url)
+                .delete()
+                .build();
+        return makeRequest(request);
+    }
+
     /*--------------------------------------------------------------------------------------------------
      * MileStone
     --------------------------------------------------------------------------------------------------*/
@@ -319,6 +358,44 @@ public class Github {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("title", title);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
+    public static Response deleteMileStone(@NonNull String repo, @NonNull int milestoneNum) throws GithubException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/milestones/" + milestoneNum;
+
+        Request request = authRequestBuilder(url)
+                .delete()
+                .build();
+
+        return makeRequest(request);
+    }
+
+    /*--------------------------------------------------------------------------------------------------
+     * Comment
+    --------------------------------------------------------------------------------------------------*/
+
+    // get issue comment
+    public static List<Comment> getNoteComment(String repo, int id) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
+                + repo + "/issues/" + id + "/comments"), new TypeToken<List<Comment>>(){});
+    }
+
+    public static Response addComment(@NonNull String repo, @NonNull int noteNum, @NonNull String body)
+            throws JSONException, IOException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/issues/" + noteNum + "/comments";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("body", body);
 
         RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
 

@@ -13,8 +13,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Model.Repo;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import org.json.JSONException;
 
@@ -79,17 +81,11 @@ public class AddRepoActivity extends AppCompatActivity {
                 }
                 return true;
             case android.R.id.home:
-                updateRepoList();
-                RepoListFragment.adapter.notifyDataSetChanged();
                 finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    public void updateRepoList(){
-        RepoListFragment.mRepos.add(mRepo);
     }
 
     public class PostNewRepo extends AsyncTask<String, String, String> {
@@ -122,12 +118,26 @@ public class AddRepoActivity extends AppCompatActivity {
             super.onPostExecute(s);
             if(responseOk){
                 Toast.makeText(AddRepoActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
-                updateRepoList();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("UPDATED_REPOS", ModelUtils.toString(updatedRepos(), new TypeToken<List<Repo>>(){}));
+                setResult(RESULT_OK,returnIntent);
+                finish();
             }else{
                 Toast.makeText(AddRepoActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    private List<Repo> updatedRepos(){
+        List<Repo> repos = null;
+        try {
+            repos = new FetchAllRepos().execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return repos;
+    }
 
 }

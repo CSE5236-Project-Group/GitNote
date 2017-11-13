@@ -13,12 +13,12 @@ import java.util.List;
  */
 
 
-public class FetchComments extends AsyncTask<String, String, List<Comment>> {
+public class FetchNoteComments extends AsyncTask<String, String, List<Comment>> {
 
     private String mRepoName;
     private int mNoteId;
 
-    public FetchComments(int noteId, String repoName){
+    public FetchNoteComments(int noteId, String repoName){
         mNoteId = noteId;
         mRepoName = repoName;
     }

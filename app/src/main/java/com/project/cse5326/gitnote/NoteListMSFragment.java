@@ -18,6 +18,8 @@ import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by sifang
  */
@@ -27,14 +29,18 @@ public class NoteListMSFragment extends Fragment{
     private static final String ARG_NOTES = "notes";
     private static final String ARG_REPO_NAME = "repo_name";
     private static final String ARG_MILESTONE = "milestone";
-    private static final int previewLength = 20;
+    private static final int REQUEST_SHOW = 0;
+    private static final int REQUEST_ADD = 1;
+    private static final int REQUEST_DELETE = 2;
+    private int viewed_pos;
 
-    private List<Note> mNotes;
+    public static List<Note> mNotes;
     private String mRepoName;
     private MileStone mMilestone;
 
     private RecyclerView mNoteRecyclerView;
     private FloatingActionButton mAddButton;
+    public NoteAdapter mAdapter;
 
     public static NoteListMSFragment newInstance(List<Note> notes, String repoName, MileStone milestone){
         Bundle args = new Bundle();
@@ -64,10 +70,10 @@ public class NoteListMSFragment extends Fragment{
 
         mNoteRecyclerView = view.findViewById(R.id.recycler_view);
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mNoteRecyclerView.setAdapter(new NoteAdapter(mNotes, mRepoName));
+        mAdapter = new NoteAdapter(mNotes, mRepoName);
+        mNoteRecyclerView.setAdapter(mAdapter);
 
         getActivity().setTitle(mMilestone.title);
-
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {
@@ -75,11 +81,36 @@ public class NoteListMSFragment extends Fragment{
             public void onClick(View v) {
             mAddButton.show();
             Intent intentMS = AddNoteActivity.newIntent(getActivity(), mRepoName,"MileStoneNoteListActivity",mMilestone);
-            startActivity(intentMS);
+            startActivityForResult(intentMS,REQUEST_ADD);
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_SHOW) {
+            if (resultCode == RESULT_OK) {
+                boolean edit = data.getBooleanExtra("EDIT",false);
+                if(edit){
+                    Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
+                    mNotes.remove(viewed_pos);
+                    mNotes.add(0, note);
+                }else {
+                    mNotes.remove(viewed_pos);
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        }else if(requestCode == REQUEST_ADD) {
+            if (resultCode == RESULT_OK) {
+                List<Note> notes = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<List<Note>>() {
+                });
+                mNotes.clear();
+                mNotes.addAll(notes);
+                mAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     public class NoteHolder extends RecyclerView.ViewHolder
@@ -89,15 +120,12 @@ public class NoteListMSFragment extends Fragment{
         private String mRepoName;
         private TextView mNoteTitle;
         private TextView mNoteDate;
-        private TextView mNoteBodyPreview;
 
         public NoteHolder(LayoutInflater inflater, ViewGroup parent) {
             super(inflater.inflate(R.layout.list_item_note, parent, false));
 
             mNoteTitle = itemView.findViewById(R.id.note_title);
             mNoteDate = itemView.findViewById(R.id.note_date);
-            mNoteBodyPreview = itemView.findViewById(R.id.note_body_preview);
-
             itemView.setOnClickListener(this);
         }
 
@@ -106,13 +134,13 @@ public class NoteListMSFragment extends Fragment{
             mRepoName = repoName;
             mNoteTitle.setText(note.getTitle());
             mNoteDate.setText(note.getUpdated_at());
-            mNoteBodyPreview.setText(note.getBody());
         }
 
         @Override
         public void onClick(View v) {
+            viewed_pos = NoteListMSFragment.mNotes.indexOf(mNote);
             Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
-            startActivity(intent);
+            startActivityForResult(intent,REQUEST_SHOW);
         }
     }
 

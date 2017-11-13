@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -40,7 +41,6 @@ public class AddNoteActivity extends AppCompatActivity {
 
     private Note mNote;
     private String mRepoName;
-    private String mCaller;
     private MileStone mMilestone;
     private boolean mIsInMileStone;
     private Toolbar mToolbarAdd;
@@ -48,17 +48,15 @@ public class AddNoteActivity extends AppCompatActivity {
     public static Intent newIntent(Context packageContext, String repoName, String caller) {
         Intent intent = new Intent(packageContext, AddNoteActivity.class);
         intent.putExtra(EXTRA_REPO_NAME, repoName);
-        intent.putExtra("caller", caller);
         intent.putExtra("isInMileStone", false);
         return intent;
     }
 
     public static Intent newIntent(Context packageContext, String repoName
-           ,String caller , MileStone milestone) {
+            ,String caller , MileStone milestone) {
         Intent intent = new Intent(packageContext, AddNoteActivity.class);
         intent.putExtra(EXTRA_REPO_NAME, repoName);
         intent.putExtra(EXTRA_MS, ModelUtils.toString(milestone, new TypeToken<MileStone>(){}));
-        intent.putExtra("caller", caller);
         intent.putExtra("isInMileStone", true);
         return intent;
     }
@@ -75,7 +73,6 @@ public class AddNoteActivity extends AppCompatActivity {
         if (mIsInMileStone) {
             mMilestone = ModelUtils.toObject(getIntent().getStringExtra(EXTRA_MS), new TypeToken<MileStone>(){});
         }
-        mCaller = getIntent().getStringExtra("caller");
 
         mToolbarAdd = findViewById(R.id.toolbar_add);
         setSupportActionBar(mToolbarAdd);
@@ -121,38 +118,10 @@ public class AddNoteActivity extends AppCompatActivity {
                 }
                 return true;
             case android.R.id.home:
-                if(mCaller.equals("RepoShowActivity")){
-                    updateRepoPage();
-                }else if(mCaller.equals("MileStoneNoteListActivity")){
-                    updateMSPage();
-                }
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void updateRepoPage(){
-        try {
-            Repo repo = new FetchRepo(mRepoName).execute().get();
-            Intent intent = RepoShowActivity.newIntent(this, repo);
-            startActivity(intent);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void updateMSPage(){
-        try {
-            List<Note> notes = new FetchMileStoneNotes(mMilestone.number, mRepoName).execute().get();
-            Intent intent = MileStoneNoteListActivity.newIntent(this, notes, mRepoName, mMilestone);
-            startActivity(intent);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         }
     }
 
@@ -174,6 +143,7 @@ public class AddNoteActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addNote(mRepoName, mNote.getTitle(),mNote.getBody(), mMilestoneNum);
+                Log.i("Response Body",response.body().toString());
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (IOException e) {
@@ -190,7 +160,10 @@ public class AddNoteActivity extends AppCompatActivity {
             super.onPostExecute(s);
             if(responseOk){
                 Toast.makeText(AddNoteActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
-                updateMSPage();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("UPDATED_NOTES", ModelUtils.toString(updatedNotesMS(), new TypeToken<List<Note>>(){}));
+                setResult(RESULT_OK,returnIntent);
+                finish();
             }else{
                 Toast.makeText(AddNoteActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
@@ -213,6 +186,7 @@ public class AddNoteActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addNote(mRepoName, mNote.getTitle(),mNote.getBody());
+                Log.i("Response Body",response.body().toString());
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (IOException e) {
@@ -229,10 +203,38 @@ public class AddNoteActivity extends AppCompatActivity {
             super.onPostExecute(s);
             if(responseOk){
                 Toast.makeText(AddNoteActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
-                updateRepoPage();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("UPDATED_NOTES", ModelUtils.toString(updatedNotesRepo(), new TypeToken<List<Note>>(){}));
+                setResult(RESULT_OK,returnIntent);
+                finish();
             }else{
                 Toast.makeText(AddNoteActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
         }
     }
+
+    private List<Note> updatedNotesRepo(){
+        List<Note> notes = null;
+        try {
+            notes = new FetchRepoAllNotes(mRepoName).execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return notes;
+    }
+
+    private List<Note> updatedNotesMS(){
+        List<Note> notes = null;
+        try {
+            notes = new FetchMileStoneNotes(mMilestone.number,mRepoName).execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return notes;
+    }
+
 }

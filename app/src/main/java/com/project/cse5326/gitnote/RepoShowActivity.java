@@ -12,7 +12,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
@@ -24,6 +27,8 @@ import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.Response;
 
 /**
  * Created by sifang
@@ -85,8 +90,17 @@ public class RepoShowActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.delete, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.delete:
+                new DeleteRepo(mRepo.getName()).execute();
             case android.R.id.home:
                 finish();
                 break;
@@ -126,6 +140,42 @@ public class RepoShowActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return mTitle[position];
+        }
+    }
+
+
+    public class DeleteRepo extends AsyncTask<String, String, String> {
+        private String mRepoName;
+        private boolean responseOk;
+        private String responseMessage;
+
+        public DeleteRepo(String repoName){
+            mRepoName = repoName;
+        }
+
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                Response response = Github.deleteRepo(mRepoName);
+                responseOk = response.isSuccessful();
+                responseMessage = response.message();
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            super.onPostExecute(s);
+            if(responseOk){
+                Toast.makeText(RepoShowActivity.this, "Successfully Deleted", Toast.LENGTH_LONG).show();
+                setResult(RESULT_OK);
+                finish();
+            }else{
+                Toast.makeText(RepoShowActivity.this, responseMessage, Toast.LENGTH_LONG).show();
+            }
         }
     }
 }

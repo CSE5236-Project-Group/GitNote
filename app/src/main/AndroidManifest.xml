@@ -2,8 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.project.cse5326.gitnote">
 
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -29,12 +33,12 @@
         <activity android:name=".NoteEditActivity" />
         <activity android:name=".RepoListShowActivity"
             android:parentActivityName=".MainActivity"/>
-        <activity android:name=".RepoShowActivity"
-            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".RepoShowActivity" />
         <activity android:name=".MileStoneNoteListActivity" />
         <activity android:name=".AddNoteActivity"/>
         <activity android:name=".AddMileStoneActivity"/>
         <activity android:name=".AddRepoActivity"/>
+        <activity android:name=".AddCommentActivity"/>
     </application>
 
 </manifest>

@@ -11,18 +11,22 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
-import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.Comment;
 import com.project.cse5326.gitnote.Model.Note;
-import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.Response;
 
 /**
  * Created by sifang
@@ -68,25 +72,13 @@ public class NoteShowActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mViewPager);
 
         try {
-            mComments = new FetchComments(mNote.getNumber(),mNoteRepoName).execute().get();
+            mComments = new FetchNoteComments(mNote.getNumber(),mNoteRepoName).execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-
     }
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case android.R.id.home:
-//                finish();
-//                break;
-//        }
-//        return true;
-//    }
-
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
 
@@ -101,9 +93,9 @@ public class NoteShowActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             if (position == 0){
-                return NoteContentFragment.newInstance(mNote);
+                return NoteContentFragment.newInstance(mNote, mNoteRepoName);
             }else if(position == 1){
-                return NoteCommentFragment.newInstance(mComments);
+                return NoteCommentFragment.newInstance(mComments, mNoteRepoName, mNote);
             }
             return null;
         }

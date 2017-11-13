@@ -1,5 +1,6 @@
 package com.project.cse5326.gitnote;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -101,9 +102,13 @@ public class RepoShowActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.delete:
                 new DeleteRepo(mRepo.getName()).execute();
+                return true;
             case android.R.id.home:
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("DELETE",false);
+                setResult(Activity.RESULT_OK,returnIntent);
                 finish();
-                break;
+                return true;
         }
         return true;
     }
@@ -171,7 +176,9 @@ public class RepoShowActivity extends AppCompatActivity {
             super.onPostExecute(s);
             if(responseOk){
                 Toast.makeText(RepoShowActivity.this, "Successfully Deleted", Toast.LENGTH_LONG).show();
-                setResult(RESULT_OK);
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("DELETE",true);
+                setResult(Activity.RESULT_OK,returnIntent);
                 finish();
             }else{
                 Toast.makeText(RepoShowActivity.this, responseMessage, Toast.LENGTH_LONG).show();

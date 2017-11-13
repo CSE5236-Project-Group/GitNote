@@ -94,10 +94,8 @@ public class MileStoneListFragment extends Fragment {
             }
         }else if(requestCode == REQUEST_DELETE){
             if (resultCode == RESULT_OK) {
-                Log.i("Code", resultCode+"");
-                int delete = data.getIntExtra("Delete",0);
-                Log.i("delete", delete + "");
-                if(delete == 999){
+                boolean delete = data.getBooleanExtra("DELETE",false);
+                if(delete){
                     mMileStones.remove(viewedPos);
                     adapter.notifyDataSetChanged();
                 }

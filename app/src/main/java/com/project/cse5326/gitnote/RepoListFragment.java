@@ -88,10 +88,12 @@ public class RepoListFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         }else if(requestCode == REQUEST_DELETE){
-            Log.i("Code", requestCode + "");
             if (resultCode == RESULT_OK) {
-                mRepos.remove(viewedPos);
-                adapter.notifyDataSetChanged();
+                boolean delete = data.getBooleanExtra("DELETE",false);
+                if(delete){
+                    mRepos.remove(viewedPos);
+                    adapter.notifyDataSetChanged();
+                }
             }
     }
 

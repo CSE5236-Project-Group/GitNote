@@ -64,14 +64,16 @@ public class MileStoneNoteListActivity extends SingleFragmentActivity {
         switch (item.getItemId()) {
             case R.id.delete:
                    new DeleteMileStone(mRepoName, mMilestone.number).execute();
+                   return true;
             case android.R.id.home:
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("Delete",1);
+                returnIntent.putExtra("DELETE",false);
                 setResult(Activity.RESULT_OK,returnIntent);
                 finish();
-                break;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return true;
     }
 
     public class DeleteMileStone extends AsyncTask<String, String, String> {
@@ -104,7 +106,7 @@ public class MileStoneNoteListActivity extends SingleFragmentActivity {
             if(responseOk){
                 Toast.makeText(MileStoneNoteListActivity.this, "Successfully Deleted", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("Delete",999);
+                returnIntent.putExtra("DELETE",true);
                 setResult(Activity.RESULT_OK,returnIntent);
                 finish();
             }else{

@@ -31,6 +31,7 @@ public class NoteListMSFragment extends Fragment{
     private static final String ARG_MILESTONE = "milestone";
     private static final int REQUEST_SHOW = 0;
     private static final int REQUEST_ADD = 1;
+    private static final int REQUEST_DELETE = 2;
     private int viewed_pos;
 
     public static List<Note> mNotes;
@@ -91,14 +92,20 @@ public class NoteListMSFragment extends Fragment{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SHOW) {
             if (resultCode == RESULT_OK) {
-                Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
-                mNotes.remove(viewed_pos);
-                mNotes.add(0, note);
+                boolean edit = data.getBooleanExtra("EDIT",false);
+                if(edit){
+                    Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
+                    mNotes.remove(viewed_pos);
+                    mNotes.add(0, note);
+                }else {
+                    mNotes.remove(viewed_pos);
+                }
                 mAdapter.notifyDataSetChanged();
             }
-        }else if(requestCode == REQUEST_ADD){
-            if(resultCode == RESULT_OK){
-                List<Note> notes = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<List<Note>>(){});
+        }else if(requestCode == REQUEST_ADD) {
+            if (resultCode == RESULT_OK) {
+                List<Note> notes = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<List<Note>>() {
+                });
                 mNotes.clear();
                 mNotes.addAll(notes);
                 mAdapter.notifyDataSetChanged();

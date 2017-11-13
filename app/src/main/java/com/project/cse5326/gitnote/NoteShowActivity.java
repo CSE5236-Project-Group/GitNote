@@ -2,6 +2,7 @@ package com.project.cse5326.gitnote;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -10,14 +11,22 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Model.Comment;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import okhttp3.Response;
 
 /**
  * Created by sifang
@@ -70,7 +79,6 @@ public class NoteShowActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
 

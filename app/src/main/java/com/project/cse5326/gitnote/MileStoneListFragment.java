@@ -1,7 +1,6 @@
 package com.project.cse5326.gitnote;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -9,17 +8,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.reflect.TypeToken;
-import com.project.cse5326.gitnote.Github.Github;
-import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
-import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
@@ -35,7 +30,9 @@ public class MileStoneListFragment extends Fragment {
 
     private static final String ARG_MILESTONES = "milestones";
     private static final String ARG_REPO = "repo";
-    private static int REQUEST = 0;
+    private static int REQUEST_ADD = 0;
+    private static int REQUEST_DELETE = 2;
+    private static int viewedPos;
 
     private List<MileStone> mMileStones;
     private String mRepoName;
@@ -79,7 +76,7 @@ public class MileStoneListFragment extends Fragment {
             public void onClick(View v) {
                 mAddButton.show();
                 Intent intent = AddMileStoneActivity.newIntent(getActivity(), mRepoName);
-                startActivityForResult(intent, REQUEST);
+                startActivityForResult(intent, REQUEST_ADD);
             }
         });
 
@@ -88,12 +85,22 @@ public class MileStoneListFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST) {
+        if (requestCode == REQUEST_ADD) {
             if (resultCode == RESULT_OK) {
                 List<MileStone> mileStones = ModelUtils.toObject(data.getStringExtra("UPDATED_MSS"), new TypeToken<List<MileStone>>(){});
                 mMileStones.clear();
                 mMileStones.addAll(mileStones);
                 adapter.notifyDataSetChanged();
+            }
+        }else if(requestCode == REQUEST_DELETE){
+            if (resultCode == RESULT_OK) {
+                Log.i("Code", resultCode+"");
+                int delete = data.getIntExtra("Delete",0);
+                Log.i("delete", delete + "");
+                if(delete == 999){
+                    mMileStones.remove(viewedPos);
+                    adapter.notifyDataSetChanged();
+                }
             }
         }
     }
@@ -120,6 +127,7 @@ public class MileStoneListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
+            viewedPos = mMileStones.indexOf(mMileStone);
             List<Note> notes = null;
             try {
                 notes = new FetchMileStoneNotes(mMileStone.number,mRepoName).execute().get();
@@ -129,7 +137,7 @@ public class MileStoneListFragment extends Fragment {
                 e.printStackTrace();
             }
             Intent intent = MileStoneNoteListActivity.newIntent(getActivity(),notes,mRepoName, mMileStone);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_DELETE);
         }
     }
 

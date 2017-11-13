@@ -85,9 +85,14 @@ public class NoteListRepoFragment extends Fragment{
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SHOW) {
             if (resultCode == RESULT_OK) {
-                Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
-                mNotes.remove(viewed_pos);
-                mNotes.add(0, note);
+                boolean edit = data.getBooleanExtra("EDIT",false);
+                if(edit){
+                    Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
+                    mNotes.remove(viewed_pos);
+                    mNotes.add(0, note);
+                }else {
+                    mNotes.remove(viewed_pos);
+                }
                 mAdapter.notifyDataSetChanged();
             }
         }else if(requestCode == REQUEST_ADD){

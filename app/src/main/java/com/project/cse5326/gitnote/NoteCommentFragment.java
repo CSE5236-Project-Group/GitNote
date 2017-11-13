@@ -2,6 +2,7 @@ package com.project.cse5326.gitnote;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -14,13 +15,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Model.Comment;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.List;
+
+import okhttp3.Response;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -100,8 +108,17 @@ public class NoteCommentFragment extends Fragment {
 
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.delete, menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
+            case R.id.delete:
+                new NoteCommentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
+                return true;
             case android.R.id.home:
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("EDITED_NOTE",ModelUtils.toString(mNote, new TypeToken<Note>(){}));
@@ -160,5 +177,44 @@ public class NoteCommentFragment extends Fragment {
             return mComments.size();
         }
     }
+
+    public class LockNote extends AsyncTask<String, String, String> {
+        private int mNoteNum;
+        private String mRepoName;
+        private boolean responseOk;
+        private String responseMessage;
+
+        public LockNote(String repoName, int noteNum){
+            mNoteNum = noteNum;
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                Response response = Github.closeNote(mRepoName, mNoteNum);
+                responseOk = response.isSuccessful();
+                responseMessage = response.message();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s){
+            super.onPostExecute(s);
+            if(responseOk){
+                Toast.makeText(getActivity(), "Successfully Deleted", Toast.LENGTH_LONG).show();
+                getActivity().setResult(RESULT_OK);
+                getActivity().finish();
+            }else{
+                Toast.makeText(getActivity(), responseMessage, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 
 }

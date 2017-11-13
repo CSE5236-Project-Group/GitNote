@@ -27,7 +27,9 @@ import static android.app.Activity.RESULT_OK;
 public class RepoListFragment extends Fragment {
 
     private static final String ARG_REPOS = "repos";
-    private static final int REQUEST = 0;
+    private static final int REQUEST_ADD = 0;
+    private static final int REQUEST_DELETE = 1;
+    private static int viewedPos;
 
     public static RepoAdapter adapter;
     public static List<Repo> mRepos;
@@ -68,7 +70,7 @@ public class RepoListFragment extends Fragment {
             public void onClick(View v) {
                 mAddButton.show();
                 Intent intent = AddRepoActivity.newIntent(getActivity());
-                startActivityForResult(intent, REQUEST);
+                startActivityForResult(intent, REQUEST_ADD);
             }
         });
 
@@ -77,7 +79,7 @@ public class RepoListFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST) {
+        if (requestCode == REQUEST_ADD) {
             if (resultCode == RESULT_OK) {
                 List<Repo> repos = ModelUtils.toObject(data.getStringExtra("UPDATED_REPOS"), new TypeToken<List<Repo>>(){});
                 Log.i("Updated_repos", ModelUtils.toString(repos, new TypeToken<List<Repo>>(){}));
@@ -85,8 +87,15 @@ public class RepoListFragment extends Fragment {
                 mRepos.addAll(repos);
                 adapter.notifyDataSetChanged();
             }
-        }
+        }else if(requestCode == REQUEST_DELETE){
+            Log.i("Code", requestCode + "");
+            if (resultCode == RESULT_OK) {
+                mRepos.remove(viewedPos);
+                adapter.notifyDataSetChanged();
+            }
     }
+
+}
 
     public class RepoHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener{
@@ -108,8 +117,9 @@ public class RepoListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
+            viewedPos = mRepos.indexOf(mRepo);
             Intent intent = RepoShowActivity.newIntent(getActivity(),mRepo);
-            startActivity(intent);
+            startActivityForResult(intent,REQUEST_DELETE);
 
         }
     }

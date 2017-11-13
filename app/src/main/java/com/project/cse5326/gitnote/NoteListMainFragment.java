@@ -27,6 +27,7 @@ public class NoteListMainFragment extends Fragment{
 
     private static final String ARG_NOTES = "notes";
     private static final int REQUEST = 0;
+    private int viewed_pos;
 
     public static List<Note> mNotes;
     public NoteAdapter mAdapter;
@@ -67,7 +68,8 @@ public class NoteListMainFragment extends Fragment{
         if (requestCode == REQUEST) {
             if (resultCode == RESULT_OK) {
                 Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
-                mNotes.add(note);
+                mNotes.remove(viewed_pos);
+                mNotes.add(0, note);
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -98,7 +100,7 @@ public class NoteListMainFragment extends Fragment{
 
         @Override
         public void onClick(View v) {
-            NoteListMainFragment.mNotes.remove(mNote);
+            viewed_pos = NoteListMainFragment.mNotes.indexOf(mNote);
             Intent intent = NoteShowMainActivity.newIntent(getActivity(),mNote);
             startActivityForResult(intent, REQUEST);
         }

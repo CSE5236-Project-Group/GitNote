@@ -30,6 +30,7 @@ public class NoteListRepoFragment extends Fragment{
     private static final String ARG_REPO_NAME = "repo_name";
     private static final int REQUEST_SHOW = 0;
     private static final int REQUEST_ADD = 1;
+    private int viewed_pos;
 
     private static List<Note> mNotes;
     public NoteAdapter mAdapter;
@@ -85,7 +86,8 @@ public class NoteListRepoFragment extends Fragment{
         if (requestCode == REQUEST_SHOW) {
             if (resultCode == RESULT_OK) {
                 Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
-                mNotes.add(note);
+                mNotes.remove(viewed_pos);
+                mNotes.add(0, note);
                 mAdapter.notifyDataSetChanged();
             }
         }else if(requestCode == REQUEST_ADD){
@@ -124,7 +126,7 @@ public class NoteListRepoFragment extends Fragment{
 
         @Override
         public void onClick(View v) {
-            NoteListRepoFragment.mNotes.remove(mNote);
+            viewed_pos = NoteListRepoFragment.mNotes.indexOf(mNote);
             Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
             startActivityForResult(intent,REQUEST_SHOW);
         }

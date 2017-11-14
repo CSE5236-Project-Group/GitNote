@@ -15,5 +15,6 @@
     <string name="ms_title_label">MileStone Title</string>
     <string name="repo_name_label">Repository Name</string>
     <string name="comment_body">Comment Body</string>
+    <string name="label_name_label">Label Name</string>
 
 </resources>

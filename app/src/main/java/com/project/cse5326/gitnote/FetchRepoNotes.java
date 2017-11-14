@@ -12,11 +12,11 @@ import java.util.List;
  * Created by sifang on 11/12/17.
  */
 
-public class FetchRepoAllNotes extends AsyncTask<String, String, List<Note>> {
+public class FetchRepoNotes extends AsyncTask<String, String, List<Note>> {
 
     String mRepoName;
 
-    public FetchRepoAllNotes(String repoName){
+    public FetchRepoNotes(String repoName){
         mRepoName = repoName;
     }
 

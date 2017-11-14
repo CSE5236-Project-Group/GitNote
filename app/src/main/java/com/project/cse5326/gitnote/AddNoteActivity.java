@@ -18,7 +18,6 @@ import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
-import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import org.json.JSONException;
@@ -216,7 +215,7 @@ public class AddNoteActivity extends AppCompatActivity {
     private List<Note> updatedNotesRepo(){
         List<Note> notes = null;
         try {
-            notes = new FetchRepoAllNotes(mRepoName).execute().get();
+            notes = new FetchRepoNotes(mRepoName).execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {

@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
 import com.project.cse5326.gitnote.Github.GithubException;
+import com.project.cse5326.gitnote.Model.Label;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.Repo;
@@ -68,8 +69,9 @@ public class RepoShowActivity extends AppCompatActivity {
         mViewPager = findViewById(R.id.viewpager);
         List<Note> notes = null;
         List<MileStone> mileStones = null;
+        List<Label> labels = null;
         try {
-           notes = new FetchRepoAllNotes(mRepo.getName()).execute().get();
+           notes = new FetchRepoNotes(mRepo.getName()).execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -82,8 +84,16 @@ public class RepoShowActivity extends AppCompatActivity {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+        try {
+            labels = new FetchRepoLabels(mRepo.getName()).execute().get();
+            Log.i("Labels", ModelUtils.toString(labels, new TypeToken<List<Label>>(){}));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         RepoShowActivity.ViewPagerAdapter adapter = new RepoShowActivity.ViewPagerAdapter(getSupportFragmentManager()
-                , notes, mileStones);
+                , notes, mileStones, labels);
         mViewPager.setAdapter(adapter);
 
         mTabLayout = findViewById(R.id.tabs);
@@ -115,15 +125,17 @@ public class RepoShowActivity extends AppCompatActivity {
 
     class ViewPagerAdapter extends FragmentPagerAdapter{
 
-        private String mTitle[] = {"All Notes", "MileStones"};
+        private String mTitle[] = {"All Notes", "MileStones","Label"};
         private List<Note> mNotes;
         private List<MileStone> mMileStones;
+        private List<Label> mLabels;
 
         public ViewPagerAdapter(FragmentManager fm,
-                                List<Note> notes, List<MileStone> mileStones) {
+                                List<Note> notes, List<MileStone> mileStones, List<Label> labels) {
             super(fm);
             mNotes = notes;
             mMileStones = mileStones;
+            mLabels = labels;
         }
 
         @Override
@@ -133,6 +145,8 @@ public class RepoShowActivity extends AppCompatActivity {
                     return NoteListRepoFragment.newInstance(mNotes, mRepo.getName());
                 case 1:
                     return MileStoneListFragment.newInstance(mMileStones, mRepo.getName());
+                case 2:
+                    return LabelListFragment.newInstance(mLabels,mRepo.getName());
             }
             return null;
         }

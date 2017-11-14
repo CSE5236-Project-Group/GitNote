@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Comment;
+import com.project.cse5326.gitnote.Model.Label;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.Repo;
@@ -224,6 +225,12 @@ public class Github {
                 + repo + "/issues"+ '?' + SCOPE_ALL), NOTES_TYPE_TOKEN);
     }
 
+    //get issue by label
+    public static List<Note> getNotes(String repo, String labelName) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
+                + repo + "/issues"+ '?' + "labels=" + labelName), new TypeToken<List<Note>>(){});
+    }
+
     // patch issue
     public static Response patchNote(@NonNull String repo, @NonNull String title, String body, int repoNum)
             throws IOException, JSONException {
@@ -263,7 +270,6 @@ public class Github {
 
         return client.newCall(request).execute();
     }
-
 
 
         // post issue by repo
@@ -406,6 +412,42 @@ public class Github {
                 .build();
 
         return client.newCall(request).execute();
+    }
+
+    /*--------------------------------------------------------------------------------------------------
+     * Label
+    --------------------------------------------------------------------------------------------------*/
+    public static List<Label> getRepoLabels(@NonNull String repo) throws GithubException {
+        return parseResponse(makeGetRequest(NOTES_REPO_ENDPOINT + "/" + user.login + "/"
+                + repo + "/labels"), new TypeToken<List<Label>>(){});
+    }
+
+    public static Response addLabel(@NonNull String repo, @NonNull String label, @NonNull String color) throws JSONException, IOException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/labels";
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", label);
+        jsonObject.put("color", color);
+
+        RequestBody requestBody = RequestBody.create(JSON, jsonObject.toString());
+
+        Request request = new Request.Builder()
+                .addHeader("Authorization", "Bearer " + accessToken)
+                .url(url)
+                .post(requestBody)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
+    public static Response deleteLabel(@NonNull String repo, @NonNull String label) throws GithubException {
+        String url = NOTES_REPO_ENDPOINT + "/" + user.login + "/" + repo + "/labels/" + label;
+
+        Request request = authRequestBuilder(url)
+                .delete()
+                .build();
+
+        return makeRequest(request);
     }
 
 }

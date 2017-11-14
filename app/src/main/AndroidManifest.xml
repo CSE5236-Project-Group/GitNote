@@ -35,10 +35,12 @@
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".RepoShowActivity" />
         <activity android:name=".MileStoneNoteListActivity" />
+        <activity android:name=".LabelNoteListActivity"/>
         <activity android:name=".AddNoteActivity"/>
         <activity android:name=".AddMileStoneActivity"/>
         <activity android:name=".AddRepoActivity"/>
         <activity android:name=".AddCommentActivity"/>
+        <activity android:name=".AddLabelActivity"/>
     </application>
 
 </manifest>

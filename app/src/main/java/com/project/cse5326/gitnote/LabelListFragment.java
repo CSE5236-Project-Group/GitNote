@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.reflect.TypeToken;
-import com.project.cse5326.gitnote.Model.MileStone;
+import com.project.cse5326.gitnote.Model.Label;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
@@ -23,30 +23,29 @@ import java.util.concurrent.ExecutionException;
 import static android.app.Activity.RESULT_OK;
 
 /**
- * Created by sifang.
+ * Created by sifang on 11/13/17.
  */
 
-public class MileStoneListFragment extends Fragment {
+public class LabelListFragment extends Fragment {
 
-    private static final String ARG_MILESTONES = "milestones";
-    private static final String ARG_REPO = "repo";
+    private static String ARG_REPO_NAME = "repo_name";
+    private static String ARG_LABELS = "labels";
     private static int REQUEST_ADD = 0;
     private static int REQUEST_DELETE = 1;
-    private static int viewedPos;
 
-    private List<MileStone> mMileStones;
+    public static List<Label> mLabels;
     private String mRepoName;
     private RecyclerView mRecyclerView;
     private FloatingActionButton mAddButton;
-    public static MileStoneAdapter adapter;
+    private LabelAdapter mAdapter;
+    private int viewPos;
 
-    public static MileStoneListFragment newInstance(List<MileStone> mileStones, String repoName) {
+    public static LabelListFragment newInstance(List<Label> labels, String repoName){
         Bundle args = new Bundle();
-        args.putString(ARG_MILESTONES, ModelUtils.toString(mileStones, new TypeToken<List<MileStone>>() {
-        }));
-        args.putString(ARG_REPO, repoName);
+        args.putString(ARG_REPO_NAME, repoName);
+        args.putString(ARG_LABELS, ModelUtils.toString(labels, new TypeToken<List<Label>>(){}));
 
-        MileStoneListFragment fragment = new MileStoneListFragment();
+        LabelListFragment fragment = new LabelListFragment();
         fragment.setArguments(args);
 
         return fragment;
@@ -55,31 +54,29 @@ public class MileStoneListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mMileStones = ModelUtils.toObject(getArguments().getString(ARG_MILESTONES), new TypeToken<List<MileStone>>() {
-        });
-        mRepoName = getArguments().getString(ARG_REPO);
+        mRepoName = getArguments().getString(ARG_REPO_NAME);
+        mLabels = ModelUtils.toObject(getArguments().getString(ARG_LABELS), new TypeToken<List<Label>>(){});
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_list, container, false);
 
         mRecyclerView = view.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new MileStoneAdapter(mMileStones);
-        mRecyclerView.setAdapter(adapter);
+        mAdapter = new LabelAdapter(mLabels);
+        mRecyclerView.setAdapter(mAdapter);
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mAddButton.show();
-                Intent intent = AddMileStoneActivity.newIntent(getActivity(), mRepoName);
+                Intent intent = AddLabelActivity.newIntent(getActivity(), mRepoName);
                 startActivityForResult(intent, REQUEST_ADD);
             }
         });
-
         return view;
     }
 
@@ -87,80 +84,79 @@ public class MileStoneListFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ADD) {
             if (resultCode == RESULT_OK) {
-                List<MileStone> mileStones = ModelUtils.toObject(data.getStringExtra("UPDATED_MSS"), new TypeToken<List<MileStone>>(){});
-                mMileStones.clear();
-                mMileStones.addAll(mileStones);
-                adapter.notifyDataSetChanged();
+                List<Label> labels = ModelUtils.toObject(data.getStringExtra("UPDATED_LABELS"), new TypeToken<List<Label>>(){});
+                mLabels.clear();
+                mLabels.addAll(labels);
+                mAdapter.notifyDataSetChanged();
             }
         }else if(requestCode == REQUEST_DELETE){
             if (resultCode == RESULT_OK) {
                 boolean delete = data.getBooleanExtra("DELETE",false);
                 if(delete == true){
-                    mMileStones.remove(viewedPos);
-                    adapter.notifyDataSetChanged();
+                    mLabels.remove(viewPos);
+                    mAdapter.notifyDataSetChanged();
                 }
             }
         }
     }
 
-
-    public class MileStoneHolder extends RecyclerView.ViewHolder
+    public class LabelHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
-        private MileStone mMileStone;
+        private Label mLabel;
         private TextView mName;
 
-        public MileStoneHolder(LayoutInflater inflater, ViewGroup parent) {
-            super(inflater.inflate(R.layout.list_item_with_name, parent, false));
+        public LabelHolder(LayoutInflater inflater, ViewGroup parent){
+            super(inflater.inflate(R.layout.list_item_with_name, parent,false));
 
             mName = itemView.findViewById(R.id.name);
-
             itemView.setOnClickListener(this);
         }
 
-        public void bind(MileStone mileStone) {
-            mMileStone = mileStone;
-            mName.setText(mMileStone.title);
+        public void bind(Label label){
+            mLabel = label;
+            mName.setText(mLabel.name);
         }
 
         @Override
         public void onClick(View v) {
-            viewedPos = mMileStones.indexOf(mMileStone);
+            viewPos = mLabels.indexOf(mLabel);
             List<Note> notes = null;
             try {
-                notes = new FetchMileStoneNotes(mMileStone.number,mRepoName).execute().get();
+                notes = new FetchLabelNotes(mRepoName,mLabel.name).execute().get();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
                 e.printStackTrace();
             }
-            Intent intent = MileStoneNoteListActivity.newIntent(getActivity(),notes,mRepoName, mMileStone);
+            Intent intent = LabelNoteListActivity.newIntent(getActivity(),mRepoName,mLabel.name,notes);
             startActivityForResult(intent, REQUEST_DELETE);
         }
     }
 
-    public class MileStoneAdapter extends RecyclerView.Adapter<MileStoneHolder> {
+    public class LabelAdapter extends RecyclerView.Adapter<LabelHolder> {
 
-        private List<MileStone> mMileStones;
+        private List<Label> mLabels;
 
-        public MileStoneAdapter(List<MileStone> mileStones) {
-            mMileStones = mileStones;
-        }
-
-
-        @Override
-        public MileStoneHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new MileStoneHolder(LayoutInflater.from(getActivity()), parent);
+        public LabelAdapter(List<Label> labels){
+            mLabels = labels;
         }
 
         @Override
-        public void onBindViewHolder(MileStoneHolder holder, int position) {
-            holder.bind(mMileStones.get(position));
+        public LabelHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new LabelHolder(LayoutInflater.from(getActivity()),parent);
+        }
+
+        @Override
+        public void onBindViewHolder(LabelHolder holder, int position) {
+            holder.bind(mLabels.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mMileStones.size();
+            return mLabels.size();
         }
     }
+
+
 }

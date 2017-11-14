@@ -1,55 +1,52 @@
 package com.project.cse5326.gitnote;
 
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.gson.reflect.TypeToken;
-import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
-
 /**
- * Created by sifang
+ * Created by sifang on 11/13/17.
  */
 
-public class NoteListMSFragment extends Fragment{
+public class NoteListLabelFragment extends Fragment {
 
     private static final String ARG_NOTES = "notes";
     private static final String ARG_REPO_NAME = "repo_name";
-    private static final String ARG_MILESTONE = "milestone";
+    private static final String ARG_LABEL_NAME = "label_name";
     private static final int REQUEST_SHOW = 0;
     private static final int REQUEST_ADD = 1;
+
+    private static List<Note> mNotes;
+    private static String mRepoName;
+    private static String mLabelName;
+
+    private RecyclerView mRecyclerView;
+    private FloatingActionButton mAddButton;
+    private NoteAdapter mAdapter;
     private int viewed_pos;
 
-    public static List<Note> mNotes;
-    private String mRepoName;
-    private MileStone mMilestone;
-
-    private RecyclerView mNoteRecyclerView;
-    private FloatingActionButton mAddButton;
-    public NoteAdapter mAdapter;
-
-    public static NoteListMSFragment newInstance(List<Note> notes, String repoName, MileStone milestone){
-        Bundle args = new Bundle();
-        args.putString(ARG_NOTES, ModelUtils.toString(notes, new TypeToken<List<Note>>(){}));
+    public static NoteListLabelFragment newInstance(String repoName, String labelName, List<Note> notes){
+        Bundle args =  new Bundle();
         args.putString(ARG_REPO_NAME, repoName);
-        args.putString(ARG_MILESTONE, ModelUtils.toString(milestone, new TypeToken<MileStone>(){}));
+        args.putString(ARG_LABEL_NAME, labelName);
+        args.putString(ARG_NOTES, ModelUtils.toString(notes, new TypeToken<List<Note>>(){}));
 
-        NoteListMSFragment fragment = new NoteListMSFragment();
+        NoteListLabelFragment fragment = new NoteListLabelFragment();
         fragment.setArguments(args);
-
         return fragment;
     }
 
@@ -58,62 +55,37 @@ public class NoteListMSFragment extends Fragment{
         super.onCreate(savedInstanceState);
         mNotes = ModelUtils.toObject(getArguments().getString(ARG_NOTES), new TypeToken<List<Note>>(){});
         mRepoName = getArguments().getString(ARG_REPO_NAME);
-        mMilestone = ModelUtils.toObject(getArguments().getString(ARG_MILESTONE), new TypeToken<MileStone>(){});
-    }
+        mLabelName = getArguments().getString(ARG_LABEL_NAME);
 
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_list, container, false);
 
-        mNoteRecyclerView = view.findViewById(R.id.recycler_view);
-        mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = new NoteAdapter(mNotes, mRepoName);
-        mNoteRecyclerView.setAdapter(mAdapter);
+        mRecyclerView = view.findViewById(R.id.recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mAdapter = new NoteAdapter(mNotes,mRepoName);
+        mRecyclerView.setAdapter(mAdapter);
 
-        getActivity().setTitle(mMilestone.title);
+        getActivity().setTitle(mLabelName);
 
         mAddButton = view.findViewById(R.id.add_button);
-        mAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            mAddButton.show();
-            Intent intentMS = AddNoteActivity.newIntent(getActivity(), mRepoName,"MileStoneNoteListActivity",mMilestone);
-            startActivityForResult(intentMS,REQUEST_ADD);
-            }
-        });
+//        mAddButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+                mAddButton.hide();
+//                Intent intent = AddNoteActivity.newIntent(getActivity(), mRepoName,"NoteListLabelFragment");
+//                startActivityForResult(intent,REQUEST_ADD);
+//            }
+//        });
 
         return view;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SHOW) {
-            if (resultCode == RESULT_OK) {
-                boolean edit = data.getBooleanExtra("EDIT",false);
-                if(edit){
-                    Note note = ModelUtils.toObject(data.getStringExtra("EDITED_NOTE"), new TypeToken<Note>(){});
-                    mNotes.remove(viewed_pos);
-                    mNotes.add(0, note);
-                }else {
-                    mNotes.remove(viewed_pos);
-                }
-                mAdapter.notifyDataSetChanged();
-            }
-        }else if(requestCode == REQUEST_ADD) {
-            if (resultCode == RESULT_OK) {
-                List<Note> notes = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<List<Note>>() {
-                });
-                mNotes.clear();
-                mNotes.addAll(notes);
-                mAdapter.notifyDataSetChanged();
-            }
-        }
-    }
-
     public class NoteHolder extends RecyclerView.ViewHolder
-                    implements View.OnClickListener{
+            implements View.OnClickListener{
 
         private Note mNote;
         private String mRepoName;
@@ -137,7 +109,7 @@ public class NoteListMSFragment extends Fragment{
 
         @Override
         public void onClick(View v) {
-            viewed_pos = NoteListMSFragment.mNotes.indexOf(mNote);
+            viewed_pos = NoteListLabelFragment.mNotes.indexOf(mNote);
             Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
             startActivityForResult(intent,REQUEST_SHOW);
         }
@@ -171,3 +143,5 @@ public class NoteListMSFragment extends Fragment{
     }
 
 }
+
+

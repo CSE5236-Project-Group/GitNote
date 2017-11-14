@@ -67,6 +67,7 @@ public class LabelListFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new LabelAdapter(mLabels);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {

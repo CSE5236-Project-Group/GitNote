@@ -80,6 +80,8 @@ public class NoteCommentFragment extends Fragment {
         mCommentRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new CommentAdapter(mComments);
         mCommentRecyclerView.setAdapter(mAdapter);
+        mCommentRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
+
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {

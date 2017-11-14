@@ -69,6 +69,8 @@ public class MileStoneListFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new MileStoneAdapter(mMileStones);
         mRecyclerView.setAdapter(adapter);
+        mRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
+
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {

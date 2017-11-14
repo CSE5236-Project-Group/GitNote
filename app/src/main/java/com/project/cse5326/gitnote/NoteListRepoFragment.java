@@ -68,6 +68,8 @@ public class NoteListRepoFragment extends Fragment{
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new NoteAdapter(mNotes, mRepoName);
         mNoteRecyclerView.setAdapter(mAdapter);
+        mNoteRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
+
 
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {

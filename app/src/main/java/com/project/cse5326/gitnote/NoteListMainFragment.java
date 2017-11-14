@@ -60,6 +60,7 @@ public class NoteListMainFragment extends Fragment{
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new NoteAdapter(mNotes);
         mNoteRecyclerView.setAdapter(mAdapter);
+        mNoteRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
         return view;
     }
 

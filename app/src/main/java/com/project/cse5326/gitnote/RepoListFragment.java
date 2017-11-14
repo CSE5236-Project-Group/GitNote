@@ -61,6 +61,7 @@ public class RepoListFragment extends Fragment {
         mRepoRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new RepoAdapter(mRepos);
         mRepoRecyclerView.setAdapter(adapter);
+        mRepoRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
 
         getActivity().setTitle("All Repositories");
 

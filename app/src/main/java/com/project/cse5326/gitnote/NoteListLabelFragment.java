@@ -68,6 +68,8 @@ public class NoteListLabelFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new NoteAdapter(mNotes,mRepoName);
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
+
 
         getActivity().setTitle(mLabelName);
 

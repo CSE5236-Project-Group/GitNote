@@ -71,6 +71,8 @@ public class NoteListMSFragment extends Fragment{
         mNoteRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new NoteAdapter(mNotes, mRepoName);
         mNoteRecyclerView.setAdapter(mAdapter);
+        mNoteRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
+
 
         getActivity().setTitle(mMilestone.title);
 

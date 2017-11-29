@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.Label;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
@@ -97,6 +99,7 @@ public class AddLabelActivity extends AppCompatActivity {
 
         private Label mLabel;
         private String mRepoName;
+        private String mResponseBody;
         private boolean responseOk;
         private String responseMessage;
 
@@ -106,9 +109,18 @@ public class AddLabelActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addLabel(mRepoName,mLabel.name,mLabel.color);
+                mResponseBody = response.body().string();
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (JSONException e) {
@@ -125,25 +137,13 @@ public class AddLabelActivity extends AppCompatActivity {
             if(responseOk){
                 Toast.makeText(AddLabelActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("UPDATED_LABELS", ModelUtils.toString(updatedMileStones(), new TypeToken<List<Label>>(){}));
+                returnIntent.putExtra("UPDATED_LABELS", mResponseBody);
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }else{
-                Toast.makeText(AddLabelActivity.this, responseMessage, Toast.LENGTH_LONG).show();
+//                Toast.makeText(AddLabelActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    public List<Label>  updatedMileStones(){
-        List<Label> milestones = null;
-        try {
-            milestones = new FetchRepoLabels(mRepoName).execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return milestones;
     }
 
 

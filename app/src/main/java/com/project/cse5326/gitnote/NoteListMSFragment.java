@@ -1,15 +1,19 @@
 package com.project.cse5326.gitnote;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.MileStone;
@@ -29,6 +33,7 @@ public class NoteListMSFragment extends Fragment{
     private static final String ARG_NOTES = "notes";
     private static final String ARG_REPO_NAME = "repo_name";
     private static final String ARG_MILESTONE = "milestone";
+    private static final String CURRENT_NOTES = "current_notes";
     private static final int REQUEST_SHOW = 0;
     private static final int REQUEST_ADD = 1;
     private int viewed_pos;
@@ -57,6 +62,9 @@ public class NoteListMSFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mNotes = ModelUtils.toObject(getArguments().getString(ARG_NOTES), new TypeToken<List<Note>>(){});
+        if(savedInstanceState != null){
+            mNotes = ModelUtils.toObject(savedInstanceState.getString(CURRENT_NOTES), new TypeToken<List<Note>>(){});
+        }
         mRepoName = getArguments().getString(ARG_REPO_NAME);
         mMilestone = ModelUtils.toObject(getArguments().getString(ARG_MILESTONE), new TypeToken<MileStone>(){});
     }
@@ -89,6 +97,13 @@ public class NoteListMSFragment extends Fragment{
         return view;
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString(CURRENT_NOTES, ModelUtils.toString(mNotes, new TypeToken<List<Note>>(){}));
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SHOW) {
@@ -105,10 +120,8 @@ public class NoteListMSFragment extends Fragment{
             }
         }else if(requestCode == REQUEST_ADD) {
             if (resultCode == RESULT_OK) {
-                List<Note> notes = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<List<Note>>() {
-                });
-                mNotes.clear();
-                mNotes.addAll(notes);
+                Note note = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<Note>(){});
+                mNotes.add(0,note);
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -139,9 +152,13 @@ public class NoteListMSFragment extends Fragment{
 
         @Override
         public void onClick(View v) {
-            viewed_pos = NoteListMSFragment.mNotes.indexOf(mNote);
-            Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
-            startActivityForResult(intent,REQUEST_SHOW);
+            if(ModelUtils.hasNetworkConnection(getActivity())){
+                viewed_pos = NoteListMSFragment.mNotes.indexOf(mNote);
+                Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
+                startActivityForResult(intent,REQUEST_SHOW);
+            }else{
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

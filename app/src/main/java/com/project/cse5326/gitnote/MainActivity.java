@@ -25,6 +25,7 @@ import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ImageUtils;
+import com.project.cse5326.gitnote.Utils.ModelUtils;
 
 import java.util.List;
 
@@ -130,6 +131,14 @@ public class MainActivity extends AppCompatActivity {
         List<Note> mNotes;
 
         @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected String doInBackground(String... strings) {
             try {
                 mNotes = Github.getNotes(1);
@@ -149,6 +158,14 @@ public class MainActivity extends AppCompatActivity {
     private class FetchAllRepos extends AsyncTask<String, String, String> {
 
         List<Repo> mRepos;
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
 
         @Override
         protected String doInBackground(String... strings) {

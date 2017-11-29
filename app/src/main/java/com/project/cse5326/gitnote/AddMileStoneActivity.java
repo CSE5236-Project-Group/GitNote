@@ -98,8 +98,17 @@ public class AddMileStoneActivity extends AppCompatActivity {
 
         private MileStone mMileStone;
         private String mRepoName;
+        private String mResponseBody;
         private boolean responseOk;
         private String responseMessage;
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
 
         public PostNewMileStone(MileStone mileStone, String repoName){
             mMileStone = mileStone;
@@ -110,6 +119,7 @@ public class AddMileStoneActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addMileStone(mRepoName,mMileStone.title);
+                mResponseBody = response.body().string();
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (JSONException e) {
@@ -126,7 +136,7 @@ public class AddMileStoneActivity extends AppCompatActivity {
             if(responseOk){
                 Toast.makeText(AddMileStoneActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("UPDATED_MSS", ModelUtils.toString(updatedMileStones(), new TypeToken<List<MileStone>>(){}));
+                returnIntent.putExtra("UPDATED_MSS", mResponseBody);
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }else{
@@ -134,20 +144,5 @@ public class AddMileStoneActivity extends AppCompatActivity {
             }
         }
     }
-
-    public List<MileStone>  updatedMileStones(){
-        List<MileStone> milestones = null;
-        try {
-            milestones = new FetchRepoMileStones(mRepoName).execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return milestones;
-    }
-
-
-
 
 }

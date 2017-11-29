@@ -2,6 +2,8 @@ package com.project.cse5326.gitnote.Utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -44,5 +46,23 @@ public class ModelUtils {
 
     public static <T> String toString(T object, TypeToken<T> typeToken) {
         return gson.toJson(object, typeToken.getType());
+    }
+
+    // check network connection
+    public static boolean hasNetworkConnection(Context context) {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo =
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        boolean isConnected = true;
+        boolean isWifiAvailable = networkInfo.isAvailable();
+        boolean isWifiConnected = networkInfo.isConnected();
+        networkInfo =
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        boolean isMobileAvailable = networkInfo.isAvailable();
+        boolean isMobileConnnected = networkInfo.isConnected();
+        isConnected = (isMobileAvailable&&isMobileConnnected) ||
+                (isWifiAvailable&&isWifiConnected);
+        return(isConnected);
     }
 }

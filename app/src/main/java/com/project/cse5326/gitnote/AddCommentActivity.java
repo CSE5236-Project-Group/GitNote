@@ -104,6 +104,7 @@ public class AddCommentActivity extends AppCompatActivity {
         private Comment mComment;
         private String mRepoName;
         private int mNoteNum;
+        private String mResponseBody;
         private boolean responseOk;
         private String responseMessage;
 
@@ -114,9 +115,18 @@ public class AddCommentActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addComment(mRepoName,mNoteNum,mComment.body);
+                mResponseBody = response.body().string();
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (JSONException e) {
@@ -133,7 +143,7 @@ public class AddCommentActivity extends AppCompatActivity {
             if(responseOk){
                 Toast.makeText(AddCommentActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("ADDED_COMMENT", ModelUtils.toString(updatedComments(), new TypeToken<List<Comment>>(){}));
+                returnIntent.putExtra("ADDED_COMMENT", mResponseBody);
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }else{
@@ -142,16 +152,5 @@ public class AddCommentActivity extends AppCompatActivity {
         }
     }
 
-    public List<Comment>  updatedComments(){
-        List<Comment> Comments = null;
-        try {
-            Comments = new FetchNoteComments(mNoteNum, mRepoName).execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return Comments;
-    }
 
 }

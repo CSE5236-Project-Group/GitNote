@@ -92,6 +92,7 @@ public class AddRepoActivity extends AppCompatActivity {
 
         private String mRepoName;
         private boolean responseOk;
+        private String mResponseBody;
         private String responseMessage;
 
         public PostNewRepo(String repoName){
@@ -99,9 +100,18 @@ public class AddRepoActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addRepo(mRepoName);
+                mResponseBody = response.body().string();
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (JSONException e) {
@@ -119,25 +129,13 @@ public class AddRepoActivity extends AppCompatActivity {
             if(responseOk){
                 Toast.makeText(AddRepoActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("UPDATED_REPOS", ModelUtils.toString(updatedRepos(), new TypeToken<List<Repo>>(){}));
+                returnIntent.putExtra("UPDATED_REPOS", mResponseBody);
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }else{
-                Toast.makeText(AddRepoActivity.this, responseMessage, Toast.LENGTH_LONG).show();
+//                Toast.makeText(AddRepoActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    private List<Repo> updatedRepos(){
-        List<Repo> repos = null;
-        try {
-            repos = new FetchAllRepos().execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return repos;
     }
 
 }

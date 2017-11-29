@@ -5,6 +5,6 @@
     <item
         android:id="@+id/delete"
         android:icon="@drawable/ic_menu_delete"
-        android:title="@string/edit_note"
+        android:title="@string/delete"
         app:showAsAction="ifRoom|withText"/>
 </menu>

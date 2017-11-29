@@ -179,15 +179,19 @@ public class NoteEditFragment extends Fragment {
         mButtonPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mButtonPhoto.show();
-                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA}, 5);
-                } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
-                } else {
-                    invokeCamera();
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, 5);
+                    } else if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        requestPermissions(new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, 100);
+                    } else {
+                        invokeCamera();
+                    }
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
                 }
+                mButtonPhoto.show();
 
 //                if (permission == 999) {
 //                    invokeCamera();
@@ -209,10 +213,14 @@ public class NoteEditFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.confirm:
-                if(mNote.getTitle().equals("")){
-                    Toast.makeText(getActivity(), "Note title can not be empty", Toast.LENGTH_LONG).show();
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    if(mNote.getTitle().equals("")){
+                        Toast.makeText(getActivity(), "Note title can not be empty", Toast.LENGTH_LONG).show();
+                    }else{
+                        new NoteEditFragment.PatchEditedNote(mNote, mRepoName).execute();
+                    }
                 }else{
-                    new NoteEditFragment.PatchEditedNote(mNote, mRepoName).execute();
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
                 }
                 return true;
             case android.R.id.home:
@@ -345,6 +353,14 @@ public class NoteEditFragment extends Fragment {
         public PatchEditedNote(Note note, String repoName){
             mNote = note;
             mRepoName = repoName;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getActivity())){
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
         }
 
         @Override

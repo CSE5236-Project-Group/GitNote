@@ -11,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Model.Repo;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
 
@@ -27,6 +29,7 @@ import static android.app.Activity.RESULT_OK;
 public class RepoListFragment extends Fragment {
 
     private static final String ARG_REPOS = "repos";
+    private static final String CURRENT_REPOS = "current_repos";
     private static final int REQUEST_ADD = 0;
     private static final int REQUEST_DELETE = 1;
     private static int viewedPos;
@@ -51,6 +54,15 @@ public class RepoListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRepos = ModelUtils.toObject(getArguments().getString(ARG_REPOS), new TypeToken<List<Repo>>(){});
+        if(savedInstanceState != null){
+            mRepos = ModelUtils.toObject(savedInstanceState.getString(CURRENT_REPOS), new TypeToken<List<Repo>>(){});
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString(CURRENT_REPOS, ModelUtils.toString(mRepos, new TypeToken<List<Repo>>(){}));
     }
 
     @Override
@@ -69,9 +81,13 @@ public class RepoListFragment extends Fragment {
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAddButton.show();
-                Intent intent = AddRepoActivity.newIntent(getActivity());
-                startActivityForResult(intent, REQUEST_ADD);
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    mAddButton.show();
+                    Intent intent = AddRepoActivity.newIntent(getActivity());
+                    startActivityForResult(intent, REQUEST_ADD);
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -82,10 +98,8 @@ public class RepoListFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ADD) {
             if (resultCode == RESULT_OK) {
-                List<Repo> repos = ModelUtils.toObject(data.getStringExtra("UPDATED_REPOS"), new TypeToken<List<Repo>>(){});
-                Log.i("Updated_repos", ModelUtils.toString(repos, new TypeToken<List<Repo>>(){}));
-                mRepos.clear();
-                mRepos.addAll(repos);
+                Repo repo = ModelUtils.toObject(data.getStringExtra("UPDATED_REPOS"), new TypeToken<Repo>(){});
+                mRepos.add(0,repo);
                 adapter.notifyDataSetChanged();
             }
         }else if(requestCode == REQUEST_DELETE){
@@ -120,10 +134,13 @@ public class RepoListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            viewedPos = mRepos.indexOf(mRepo);
-            Intent intent = RepoShowActivity.newIntent(getActivity(),mRepo);
-            startActivityForResult(intent,REQUEST_DELETE);
-
+            if(ModelUtils.hasNetworkConnection(getActivity())){
+                viewedPos = mRepos.indexOf(mRepo);
+                Intent intent = RepoShowActivity.newIntent(getActivity(),mRepo);
+                startActivityForResult(intent,REQUEST_DELETE);
+            }else{
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

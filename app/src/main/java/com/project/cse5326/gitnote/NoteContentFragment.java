@@ -87,9 +87,13 @@ public class NoteContentFragment extends Fragment {
         mEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEditButton.show();
-                Intent intent = NoteEditActivity.newIntent(getActivity(), mNote, mRepoName);
-                startActivityForResult(intent, EDIT_CONDITION);
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    mEditButton.show();
+                    Intent intent = NoteEditActivity.newIntent(getActivity(), mNote, mRepoName);
+                    startActivityForResult(intent, EDIT_CONDITION);
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -119,7 +123,11 @@ public class NoteContentFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.delete:
-                new NoteContentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    new NoteContentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
                 return true;
             case android.R.id.home:
                 Intent returnIntent = new Intent();
@@ -143,6 +151,14 @@ public class NoteContentFragment extends Fragment {
         public LockNote(String repoName, int noteNum){
             mNoteNum = noteNum;
             mRepoName = repoName;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getActivity())){
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
         }
 
         @Override

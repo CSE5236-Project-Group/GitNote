@@ -1,6 +1,7 @@
 package com.project.cse5326.gitnote;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -11,8 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.Label;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
@@ -30,6 +34,7 @@ public class LabelListFragment extends Fragment {
 
     private static String ARG_REPO_NAME = "repo_name";
     private static String ARG_LABELS = "labels";
+    private static String CURRENT_LABELS = "current_label";
     private static int REQUEST_ADD = 0;
     private static int REQUEST_DELETE = 1;
 
@@ -56,6 +61,9 @@ public class LabelListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mRepoName = getArguments().getString(ARG_REPO_NAME);
         mLabels = ModelUtils.toObject(getArguments().getString(ARG_LABELS), new TypeToken<List<Label>>(){});
+        if(savedInstanceState != null){
+            mLabels = ModelUtils.toObject(savedInstanceState.getString(CURRENT_LABELS), new TypeToken<List<Label>>(){});
+        }
     }
 
     @Override
@@ -74,20 +82,29 @@ public class LabelListFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mAddButton.show();
-                Intent intent = AddLabelActivity.newIntent(getActivity(), mRepoName);
-                startActivityForResult(intent, REQUEST_ADD);
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    Intent intent = AddLabelActivity.newIntent(getActivity(), mRepoName);
+                    startActivityForResult(intent, REQUEST_ADD);
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
             }
         });
         return view;
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString(CURRENT_LABELS, ModelUtils.toString(mLabels, new TypeToken<List<Label>>(){}));
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ADD) {
             if (resultCode == RESULT_OK) {
-                List<Label> labels = ModelUtils.toObject(data.getStringExtra("UPDATED_LABELS"), new TypeToken<List<Label>>(){});
-                mLabels.clear();
-                mLabels.addAll(labels);
+                Label newLabels = ModelUtils.toObject(data.getStringExtra("UPDATED_LABELS"), new TypeToken<Label>(){});
+                mLabels.add(0, newLabels);
                 mAdapter.notifyDataSetChanged();
             }
         }else if(requestCode == REQUEST_DELETE){
@@ -121,17 +138,21 @@ public class LabelListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            viewPos = mLabels.indexOf(mLabel);
-            List<Note> notes = null;
-            try {
-                notes = new FetchLabelNotes(mRepoName,mLabel.name).execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+            if(ModelUtils.hasNetworkConnection(getActivity())){
+                viewPos = mLabels.indexOf(mLabel);
+                List<Note> notes = null;
+                try {
+                    notes = new FetchLabelNotes(mRepoName,mLabel.name).execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                Intent intent = LabelNoteListActivity.newIntent(getActivity(),mRepoName,mLabel.name,notes);
+                startActivityForResult(intent, REQUEST_DELETE);
+            }else{
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
             }
-            Intent intent = LabelNoteListActivity.newIntent(getActivity(),mRepoName,mLabel.name,notes);
-            startActivityForResult(intent, REQUEST_DELETE);
         }
     }
 
@@ -159,5 +180,34 @@ public class LabelListFragment extends Fragment {
         }
     }
 
+    public class FetchLabelNotes extends AsyncTask<String, String, List<Note>> {
+
+        String mLabelName;
+        String mRepoName;
+
+        public FetchLabelNotes(String repoName, String labelName){
+            mRepoName = repoName;
+            mLabelName = labelName;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getActivity())){
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
+        protected List<Note> doInBackground(String... strings) {
+            List<Note> notes = null;
+            try {
+                notes = Github.getNotes(mRepoName, mLabelName);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return notes;
+        }
+    }
 
 }

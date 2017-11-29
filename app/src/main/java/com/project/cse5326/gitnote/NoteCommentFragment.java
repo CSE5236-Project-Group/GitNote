@@ -87,9 +87,13 @@ public class NoteCommentFragment extends Fragment {
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAddButton.show();
-                Intent intent = AddCommentActivity.newIntent(getActivity(),mRepoName,mNote.getNumber());
-                startActivityForResult(intent, REQUEST);
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    mAddButton.show();
+                    Intent intent = AddCommentActivity.newIntent(getActivity(),mRepoName,mNote.getNumber());
+                    startActivityForResult(intent, REQUEST);
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -100,9 +104,8 @@ public class NoteCommentFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST) {
             if (resultCode == RESULT_OK) {
-                List<Comment> comments = ModelUtils.toObject(data.getStringExtra("ADDED_COMMENT"), new TypeToken<List<Comment>>(){});
-                mComments.clear();
-                mComments.addAll(comments);
+                Comment comment = ModelUtils.toObject(data.getStringExtra("ADDED_COMMENT"), new TypeToken<Comment>(){});
+                mComments.add(0,comment);
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -119,7 +122,11 @@ public class NoteCommentFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.delete:
-                new NoteCommentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    new NoteCommentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
                 return true;
             case android.R.id.home:
                 Intent returnIntent = new Intent();
@@ -192,6 +199,14 @@ public class NoteCommentFragment extends Fragment {
         }
 
         @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getActivity())){
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.closeNote(mRepoName, mNoteNum);
@@ -213,7 +228,7 @@ public class NoteCommentFragment extends Fragment {
                 getActivity().setResult(RESULT_OK);
                 getActivity().finish();
             }else{
-                Toast.makeText(getActivity(), responseMessage, Toast.LENGTH_LONG).show();
+//                Toast.makeText(getActivity(), responseMessage, Toast.LENGTH_LONG).show();
             }
         }
     }

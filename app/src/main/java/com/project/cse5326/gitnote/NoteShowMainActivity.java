@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
@@ -104,4 +105,33 @@ public class NoteShowMainActivity extends AppCompatActivity {
         }
     }
 
+    public class FetchNoteComments extends AsyncTask<String, String, List<Comment>> {
+
+        private String mRepoName;
+        private int mNoteId;
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        public FetchNoteComments(int noteId, String repoName){
+            mNoteId = noteId;
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected List<Comment> doInBackground(String... strings) {
+            List<Comment> comments = null;
+            try {
+                comments = Github.getNoteComment(mRepoName,mNoteId);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return comments;
+        }
+    }
 }

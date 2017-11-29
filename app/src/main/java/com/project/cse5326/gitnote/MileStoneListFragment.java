@@ -1,6 +1,7 @@
 package com.project.cse5326.gitnote;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -11,8 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
+import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.MileStone;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
@@ -29,6 +33,7 @@ import static android.app.Activity.RESULT_OK;
 public class MileStoneListFragment extends Fragment {
 
     private static final String ARG_MILESTONES = "milestones";
+    private static final String CURRENT_MILESTONES = "current_milestones";
     private static final String ARG_REPO = "repo";
     private static int REQUEST_ADD = 0;
     private static int REQUEST_DELETE = 1;
@@ -57,6 +62,9 @@ public class MileStoneListFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mMileStones = ModelUtils.toObject(getArguments().getString(ARG_MILESTONES), new TypeToken<List<MileStone>>() {
         });
+        if(savedInstanceState != null){
+            mMileStones = ModelUtils.toObject(savedInstanceState.getString(CURRENT_MILESTONES), new TypeToken<List<MileStone>>(){});
+        }
         mRepoName = getArguments().getString(ARG_REPO);
     }
 
@@ -71,14 +79,17 @@ public class MileStoneListFragment extends Fragment {
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.addItemDecoration(new SpaceItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_small)));
 
-
         mAddButton = view.findViewById(R.id.add_button);
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAddButton.show();
-                Intent intent = AddMileStoneActivity.newIntent(getActivity(), mRepoName);
-                startActivityForResult(intent, REQUEST_ADD);
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    mAddButton.show();
+                    Intent intent = AddMileStoneActivity.newIntent(getActivity(), mRepoName);
+                    startActivityForResult(intent, REQUEST_ADD);
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -86,12 +97,17 @@ public class MileStoneListFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString(CURRENT_MILESTONES, ModelUtils.toString(mMileStones, new TypeToken<List<MileStone>>(){}));
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ADD) {
             if (resultCode == RESULT_OK) {
-                List<MileStone> mileStones = ModelUtils.toObject(data.getStringExtra("UPDATED_MSS"), new TypeToken<List<MileStone>>(){});
-                mMileStones.clear();
-                mMileStones.addAll(mileStones);
+                MileStone mileStone = ModelUtils.toObject(data.getStringExtra("UPDATED_MSS"), new TypeToken<MileStone>(){});
+                mMileStones.add(0,mileStone);
                 adapter.notifyDataSetChanged();
             }
         }else if(requestCode == REQUEST_DELETE){
@@ -127,17 +143,21 @@ public class MileStoneListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            viewedPos = mMileStones.indexOf(mMileStone);
-            List<Note> notes = null;
-            try {
-                notes = new FetchMileStoneNotes(mMileStone.number,mRepoName).execute().get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+            if(ModelUtils.hasNetworkConnection(getActivity())){
+                viewedPos = mMileStones.indexOf(mMileStone);
+                List<Note> notes = null;
+                try {
+                    notes = new FetchMileStoneNotes(mMileStone.number,mRepoName).execute().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                Intent intent = MileStoneNoteListActivity.newIntent(getActivity(),notes,mRepoName, mMileStone);
+                startActivityForResult(intent, REQUEST_DELETE);
+            }else{
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
             }
-            Intent intent = MileStoneNoteListActivity.newIntent(getActivity(),notes,mRepoName, mMileStone);
-            startActivityForResult(intent, REQUEST_DELETE);
         }
     }
 
@@ -163,6 +183,36 @@ public class MileStoneListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mMileStones.size();
+        }
+    }
+
+    public class FetchMileStoneNotes extends AsyncTask<String, String, List<Note>> {
+
+        private int mMileStoneId;
+        private String mRepoName;
+
+        public FetchMileStoneNotes(int mileStoneId, String repoName){
+            mMileStoneId = mileStoneId;
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getActivity())){
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
+        protected List<Note> doInBackground(String... strings) {
+            List<Note> notes = null;
+            try {
+                notes = Github.getNotes(mRepoName,mMileStoneId);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return notes;
         }
     }
 }

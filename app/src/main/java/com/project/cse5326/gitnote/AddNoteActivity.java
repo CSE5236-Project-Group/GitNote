@@ -129,6 +129,7 @@ public class AddNoteActivity extends AppCompatActivity {
         private Note mNote;
         private String mRepoName;
         private int mMilestoneNum;
+        private String mResponseBody;
         private boolean responseOk;
         private String responseMessage;
 
@@ -139,10 +140,18 @@ public class AddNoteActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addNote(mRepoName, mNote.getTitle(),mNote.getBody(), mMilestoneNum);
-                Log.i("Response Body",response.body().toString());
+                mResponseBody = response.body().string();
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (IOException e) {
@@ -160,7 +169,7 @@ public class AddNoteActivity extends AppCompatActivity {
             if(responseOk){
                 Toast.makeText(AddNoteActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("UPDATED_NOTES", ModelUtils.toString(updatedNotesMS(), new TypeToken<List<Note>>(){}));
+                returnIntent.putExtra("UPDATED_NOTES", mResponseBody);
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }else{
@@ -173,6 +182,7 @@ public class AddNoteActivity extends AppCompatActivity {
 
         private Note mNote;
         private String mRepoName;
+        private String mResponseBody;
         private boolean responseOk;
         private String responseMessage;
 
@@ -182,10 +192,18 @@ public class AddNoteActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
         protected String doInBackground(String... strings) {
             try {
                 Response response = Github.addNote(mRepoName, mNote.getTitle(),mNote.getBody());
-                Log.i("Response Body",response.body().toString());
+                mResponseBody = response.body().string();
                 responseOk = response.isSuccessful();
                 responseMessage = response.message();
             } catch (IOException e) {
@@ -203,37 +221,14 @@ public class AddNoteActivity extends AppCompatActivity {
             if(responseOk){
                 Toast.makeText(AddNoteActivity.this, "Successfully Added", Toast.LENGTH_LONG).show();
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("UPDATED_NOTES", ModelUtils.toString(updatedNotesRepo(), new TypeToken<List<Note>>(){}));
+                returnIntent.putExtra("UPDATED_NOTES", mResponseBody);
                 setResult(RESULT_OK,returnIntent);
                 finish();
             }else{
-                Toast.makeText(AddNoteActivity.this, responseMessage, Toast.LENGTH_LONG).show();
+//                Toast.makeText(AddNoteActivity.this, responseMessage, Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private List<Note> updatedNotesRepo(){
-        List<Note> notes = null;
-        try {
-            notes = new FetchRepoNotes(mRepoName).execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return notes;
-    }
-
-    private List<Note> updatedNotesMS(){
-        List<Note> notes = null;
-        try {
-            notes = new FetchMileStoneNotes(mMilestone.number,mRepoName).execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return notes;
-    }
 
 }

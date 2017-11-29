@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Github.Github;
+import com.project.cse5326.gitnote.Github.GithubException;
 import com.project.cse5326.gitnote.Model.Comment;
 import com.project.cse5326.gitnote.Model.Note;
 import com.project.cse5326.gitnote.Utils.ModelUtils;
@@ -62,7 +63,6 @@ public class NoteShowActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
-
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager(), mNote);
@@ -111,4 +111,33 @@ public class NoteShowActivity extends AppCompatActivity {
         }
     }
 
+    public class FetchNoteComments extends AsyncTask<String, String, List<Comment>> {
+
+        private String mRepoName;
+        private int mNoteId;
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        public FetchNoteComments(int noteId, String repoName){
+            mNoteId = noteId;
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected List<Comment> doInBackground(String... strings) {
+            List<Comment> comments = null;
+            try {
+                comments = Github.getNoteComment(mRepoName,mNoteId);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return comments;
+        }
+    }
 }

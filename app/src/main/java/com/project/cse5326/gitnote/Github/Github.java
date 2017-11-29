@@ -138,7 +138,7 @@ public class Github {
     }
 
     // Parse to target type
-    private static <T> T parseResponse(Response response, TypeToken<T> TypeToken)
+    public static <T> T parseResponse(Response response, TypeToken<T> TypeToken)
             throws GithubException {
         String responseString = null;
         try {

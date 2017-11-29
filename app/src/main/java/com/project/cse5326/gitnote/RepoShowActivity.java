@@ -172,6 +172,13 @@ public class RepoShowActivity extends AppCompatActivity {
             mRepoName = repoName;
         }
 
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
 
         @Override
         protected String doInBackground(String... strings) {
@@ -199,4 +206,90 @@ public class RepoShowActivity extends AppCompatActivity {
             }
         }
     }
+
+    public class FetchRepoLabels extends AsyncTask<String, String, List<Label>> {
+
+        String mRepoName;
+
+        public FetchRepoLabels(String repoName){
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
+        protected List<Label> doInBackground(String... strings) {
+            List<Label> labels = null;
+            try {
+                labels = Github.getRepoLabels(mRepoName);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return labels;
+        }
+
+    }
+
+    public class FetchRepoMileStones extends AsyncTask<String, String, List<MileStone>> {
+
+        String mRepoName;
+
+        public FetchRepoMileStones(String repoName) {
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
+        protected List<MileStone> doInBackground(String... strings) {
+            List<MileStone> mileStones = null;
+            try {
+                mileStones = Github.getMileStone(mRepoName);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return mileStones;
+        }
+    }
+
+    public class FetchRepoNotes extends AsyncTask<String, String, List<Note>> {
+
+        String mRepoName;
+
+        public FetchRepoNotes(String repoName){
+            mRepoName = repoName;
+        }
+
+        @Override
+        protected void onPreExecute(){
+            if(!ModelUtils.hasNetworkConnection(getApplicationContext())){
+                Toast.makeText(getApplicationContext(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                this.cancel(true);
+            }
+        }
+
+        @Override
+        protected List<Note> doInBackground(String... strings) {
+            List<Note> notes = null;
+            try {
+                notes = Github.getNotes(mRepoName);
+            } catch (GithubException e) {
+                e.printStackTrace();
+            }
+            return notes;
+        }
+    }
+
 }

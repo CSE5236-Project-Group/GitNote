@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
@@ -28,6 +29,7 @@ public class NoteListRepoFragment extends Fragment{
 
     private static final String ARG_NOTES = "notes";
     private static final String ARG_REPO_NAME = "repo_name";
+    private static final String CURRENT_NOTES = "current_notes";
     private static final int REQUEST_SHOW = 0;
     private static final int REQUEST_ADD = 1;
     private int viewed_pos;
@@ -54,6 +56,9 @@ public class NoteListRepoFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mNotes = ModelUtils.toObject(getArguments().getString(ARG_NOTES), new TypeToken<List<Note>>(){});
+        if(savedInstanceState != null){
+            mNotes = ModelUtils.toObject(savedInstanceState.getString(CURRENT_NOTES), new TypeToken<List<Note>>(){});
+        }
         mRepoName = getArguments().getString(ARG_REPO_NAME);
 
     }
@@ -75,12 +80,22 @@ public class NoteListRepoFragment extends Fragment{
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intentRepo = AddNoteActivity.newIntent(getActivity(), mRepoName, "RepoShowActivity");
-                startActivityForResult(intentRepo, REQUEST_ADD);
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    Intent intentRepo = AddNoteActivity.newIntent(getActivity(), mRepoName, "RepoShowActivity");
+                    startActivityForResult(intentRepo, REQUEST_ADD);
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putString(CURRENT_NOTES, ModelUtils.toString(mNotes, new TypeToken<List<Note>>(){}));
     }
 
     @Override
@@ -99,9 +114,8 @@ public class NoteListRepoFragment extends Fragment{
             }
         }else if(requestCode == REQUEST_ADD){
             if(resultCode == RESULT_OK){
-                List<Note> notes = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<List<Note>>(){});
-                mNotes.clear();
-                mNotes.addAll(notes);
+                Note note = ModelUtils.toObject(data.getStringExtra("UPDATED_NOTES"), new TypeToken<Note>(){});
+                mNotes.add(0,note);
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -133,9 +147,13 @@ public class NoteListRepoFragment extends Fragment{
 
         @Override
         public void onClick(View v) {
-            viewed_pos = NoteListRepoFragment.mNotes.indexOf(mNote);
-            Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
-            startActivityForResult(intent,REQUEST_SHOW);
+            if(ModelUtils.hasNetworkConnection(getActivity())){
+                viewed_pos = NoteListRepoFragment.mNotes.indexOf(mNote);
+                Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
+                startActivityForResult(intent,REQUEST_SHOW);
+            }else{
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

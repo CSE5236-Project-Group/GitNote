@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.project.cse5326.gitnote.Model.Note;
@@ -111,9 +112,13 @@ public class NoteListLabelFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            viewed_pos = NoteListLabelFragment.mNotes.indexOf(mNote);
-            Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
-            startActivityForResult(intent,REQUEST_SHOW);
+            if(ModelUtils.hasNetworkConnection(getActivity())){
+                viewed_pos = NoteListLabelFragment.mNotes.indexOf(mNote);
+                Intent intent = NoteShowActivity.newIntent(getActivity(),mNote, mRepoName);
+                startActivityForResult(intent,REQUEST_SHOW);
+            }else{
+                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+            }
         }
     }
 

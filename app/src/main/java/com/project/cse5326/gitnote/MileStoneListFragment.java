@@ -1,14 +1,17 @@
 package com.project.cse5326.gitnote;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -66,6 +69,7 @@ public class MileStoneListFragment extends Fragment {
             mMileStones = ModelUtils.toObject(savedInstanceState.getString(CURRENT_MILESTONES), new TypeToken<List<MileStone>>(){});
         }
         mRepoName = getArguments().getString(ARG_REPO);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -118,6 +122,20 @@ public class MileStoneListFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                 }
             }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case android.R.id.home:
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("DELETE",false);
+                getActivity().setResult(Activity.RESULT_OK,returnIntent);
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

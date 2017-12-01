@@ -52,19 +52,19 @@ public class MileStoneNoteListActivity extends SingleFragmentActivity {
         mMilestone = ModelUtils.toObject(getIntent().getStringExtra(EXTRA_MS), new TypeToken<MileStone>(){});
         return NoteListMSFragment.newInstance(mNotes, mRepoName, mMilestone);
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.delete, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.delete, menu);
+//        return true;
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.delete:
-                   new DeleteMileStone(mRepoName, mMilestone.number).execute();
-                   return true;
+//            case R.id.delete:
+//                   new DeleteMileStone(mRepoName, mMilestone.number).execute();
+//                   return true;
             case android.R.id.home:
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("DELETE",false);

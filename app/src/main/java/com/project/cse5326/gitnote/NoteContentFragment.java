@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -113,22 +114,25 @@ public class NoteContentFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.delete, menu);
-    }
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+//        super.onCreateOptionsMenu(menu, inflater);
+//        inflater.inflate(R.menu.delete, menu);
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
-            case R.id.delete:
-                if(ModelUtils.hasNetworkConnection(getActivity())){
-                    new NoteContentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
-                }else{
-                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
-                }
-                return true;
+//            case R.id.delete:
+//                if(ModelUtils.hasNetworkConnection(getActivity())){
+//                    FragmentManager fm = getFragmentManager();
+//                    DeleteFragment dialog = new DeleteFragment();
+//                    dialog.show(fm,DIALOG_DELETE);
+//                    new NoteContentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
+//                }else{
+//                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+//                }
+//                return true;
             case android.R.id.home:
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("EDITED_NOTE",ModelUtils.toString(mNote, new TypeToken<Note>(){}));
@@ -142,54 +146,54 @@ public class NoteContentFragment extends Fragment {
     }
 
 
-    public class LockNote extends AsyncTask<String, String, String> {
-        private int mNoteNum;
-        private String mRepoName;
-        private boolean responseOk;
-        private String responseMessage;
-
-        public LockNote(String repoName, int noteNum){
-            mNoteNum = noteNum;
-            mRepoName = repoName;
-        }
-
-        @Override
-        protected void onPreExecute(){
-            if(!ModelUtils.hasNetworkConnection(getActivity())){
-                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
-                this.cancel(true);
-            }
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            try {
-                Response response = Github.closeNote(mRepoName, mNoteNum);
-                responseOk = response.isSuccessful();
-                responseMessage = response.message();
-                Log.i("Response", response.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s){
-            super.onPostExecute(s);
-            if(responseOk){
-                Toast.makeText(getActivity(), "Successfully Deleted", Toast.LENGTH_LONG).show();
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("EDIT",false);
-                getActivity().setResult(Activity.RESULT_OK,returnIntent);
-                getActivity().finish();
-            }else{
-                Toast.makeText(getActivity(), responseMessage, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
+//    public class LockNote extends AsyncTask<String, String, String> {
+//        private int mNoteNum;
+//        private String mRepoName;
+//        private boolean responseOk;
+//        private String responseMessage;
+//
+//        public LockNote(String repoName, int noteNum){
+//            mNoteNum = noteNum;
+//            mRepoName = repoName;
+//        }
+//
+//        @Override
+//        protected void onPreExecute(){
+//            if(!ModelUtils.hasNetworkConnection(getActivity())){
+//                Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+//                this.cancel(true);
+//            }
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... strings) {
+//            try {
+//                Response response = Github.closeNote(mRepoName, mNoteNum);
+//                responseOk = response.isSuccessful();
+//                responseMessage = response.message();
+//                Log.i("Response", response.toString());
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String s){
+//            super.onPostExecute(s);
+//            if(responseOk){
+//                Toast.makeText(getActivity(), "Successfully Deleted", Toast.LENGTH_LONG).show();
+//                Intent returnIntent = new Intent();
+//                returnIntent.putExtra("EDIT",false);
+//                getActivity().setResult(Activity.RESULT_OK,returnIntent);
+//                getActivity().finish();
+//            }else{
+//                Toast.makeText(getActivity(), responseMessage, Toast.LENGTH_LONG).show();
+//            }
+//        }
+//    }
 
 
 }

@@ -17,5 +17,5 @@
     <string name="comment_body">Comment Body</string>
     <string name="label_name_label">Label Name</string>
     <string name="delete">Delete</string>
-
+    <string name="delete_title">Delete</string>
 </resources>

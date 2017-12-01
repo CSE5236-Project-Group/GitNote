@@ -100,28 +100,28 @@ public class RepoShowActivity extends AppCompatActivity {
         mTabLayout.setupWithViewPager(mViewPager);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.delete, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.delete, menu);
+//        return true;
+//    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.delete:
-                new DeleteRepo(mRepo.getName()).execute();
-                return true;
-            case android.R.id.home:
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("DELETE",false);
-                setResult(Activity.RESULT_OK,returnIntent);
-                finish();
-                return true;
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+////            case R.id.delete:
+////                new DeleteRepo(mRepo.getName()).execute();
+////                return true;
+//            case android.R.id.home:
+//                Intent returnIntent = new Intent();
+//                returnIntent.putExtra("DELETE",false);
+//                setResult(Activity.RESULT_OK,returnIntent);
+//                finish();
+//                return true;
+//        }
+//        return true;
+//    }
 
     class ViewPagerAdapter extends FragmentPagerAdapter{
 

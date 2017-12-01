@@ -4,9 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -27,7 +32,9 @@ import static android.app.Activity.RESULT_OK;
 public class NoteListMainFragment extends Fragment{
 
     private static final String ARG_NOTES = "notes";
+    private static final String DIALOG_DELETE = "DialogDate";
     private static final int REQUEST = 0;
+    private static final int DELETE = 1;
     private int viewed_pos;
 
     public static List<Note> mNotes;
@@ -48,7 +55,7 @@ public class NoteListMainFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mNotes = ModelUtils.toObject(getArguments().getString(ARG_NOTES), new TypeToken<List<Note>>(){});
-
+        setHasOptionsMenu(true);
     }
 
 
@@ -79,6 +86,39 @@ public class NoteListMainFragment extends Fragment{
                 }
                 mAdapter.notifyDataSetChanged();
             }
+        }else if(requestCode == DELETE){
+            if (resultCode == RESULT_OK) {
+                List<Integer> deletedIndex = ModelUtils.toObject(data.getStringExtra(DeleteFragment.EXTRA_DELETE_INDEX), new TypeToken<List<Integer>>(){});
+                for (int i = 0; i<deletedIndex.size(); i++){
+                    mNotes.remove((int)deletedIndex.get(i));
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.delete, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.delete:
+                if(ModelUtils.hasNetworkConnection(getActivity())){
+                    FragmentManager fm = getFragmentManager();
+                    DeleteFragment dialog = DeleteFragment.newInstance(mNotes);
+                    dialog.setTargetFragment(this, DELETE);
+                    dialog.show(fm,DIALOG_DELETE);
+//                    new NoteContentFragment.LockNote(mRepoName, mNote.getNumber()).execute();
+                }else{
+                    Toast.makeText(getActivity(), "No Network Connection!", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
